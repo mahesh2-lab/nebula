@@ -1,0 +1,13 @@
+{
+  "breakpoints": [375, 768, 1280],
+  "out": "./app/bones",
+  "wait": 800,
+  "color": "#27272a",
+  "darkColor": "#27272a",
+  "animate": "shimmer",
+  "auth": {
+    "headers": {
+      "x-boneyard-bypass": "true"
+    }
+  }
+}
