@@ -48,7 +48,9 @@ export default function Login() {
   const { data: session, status } = useSession();
 
   React.useEffect(() => {
-    if (status === 'authenticated' || isAuthenticated) {
+    if (status === 'unauthenticated' && isAuthenticated) {
+      setIsAuthenticated(false);
+    } else if (status === 'authenticated' || isAuthenticated) {
       if (status === 'authenticated' && !isAuthenticated) {
         setIsAuthenticated(true);
       }

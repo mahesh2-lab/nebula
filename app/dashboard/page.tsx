@@ -264,7 +264,7 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <a
-                  href={`http://${proj.id}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`}
+                  href={`https://${proj.id}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`}
                   target="_blank"
                   onClick={(e) => e.stopPropagation()}
                   className="text-xs text-[#A1A1AA] hover:text-white flex items-center gap-1 font-mono"

@@ -70,7 +70,7 @@ export function Overview({ project, onTabChange }: { project: Project; onTabChan
           <h2 className="text-sm font-semibold text-[#FAFAFA] flex items-center gap-2">
             {project.id}.{process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}
             <a 
-              href={`http://${project.id}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`} 
+              href={`https://${project.id}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`} 
               target="_blank" 
               className="text-[#71717A] hover:text-[#FAFAFA] transition-colors"
             >

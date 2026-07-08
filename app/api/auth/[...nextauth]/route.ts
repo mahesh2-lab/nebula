@@ -132,6 +132,17 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/login",
   },
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: false,
+      },
+    },
+  },
   callbacks: {
     async signIn({ user, account }) {
       const email = user.email || (account?.provider === 'github' ? `${user.id}@github.placeholder.nebula.dev` : undefined);
