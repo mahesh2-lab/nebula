@@ -7,6 +7,8 @@ import { mapDbProjectToStoreProject } from '@/lib/db/mappers';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { Skeleton } from 'boneyard-js/react';
 import '../bones/registry';
+
+export const dynamic = 'force-dynamic';
 import {
   Github,
   ChevronRight,
@@ -33,6 +35,24 @@ import { toast } from 'sonner';
 import { MagicCard } from '@/components/magicui/magic-card';
 import { motion } from 'framer-motion';
 import TemplateCard from '@/components/ui/TemplateCard';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 type RepoInfo = {
   owner: any;
@@ -54,27 +74,24 @@ type RepoInfo = {
 };
 
 function detectFramework(lang: string | null): string {
-  const l = (lang || '').toLowerCase();
-  if (['go', 'rust', 'c', 'c++', 'python', 'java'].includes(l)) return 'Go / Docker';
-  if (['javascript', 'typescript', 'vue', 'svelte'].includes(l)) return 'Vite';
-  return 'Next.js';
+  return 'Vite';
 }
 
 const TEMPLATE_REPOS: Record<string, RepoInfo> = {
-  'nextjs-boilerplate': {
-    id: 10001,
-    nodeId: 'nextjs-boilerplate-node',
-    name: 'nextjs-boilerplate',
-    fullName: 'vercel/nextjs-boilerplate',
-    description: 'A starter Next.js boilerplate template.',
-    htmlUrl: 'https://github.com/vercel/next-js-boilerplate',
-    cloneUrl: 'https://github.com/vercel/next-js-boilerplate.git',
-    sshUrl: 'git@github.com:vercel/next-js-boilerplate.git',
+  'vite-react-boilerplate': {
+    id: 10006,
+    nodeId: 'vite-react-boilerplate-node',
+    name: 'vite-react-boilerplate',
+    fullName: 'RicardoValdovinos/vite-react-boilerplate',
+    description: 'A React starter template powered by Vite.',
+    htmlUrl: 'https://github.com/RicardoValdovinos/vite-react-boilerplate',
+    cloneUrl: 'https://github.com/RicardoValdovinos/vite-react-boilerplate.git',
+    sshUrl: 'git@github.com:RicardoValdovinos/vite-react-boilerplate.git',
     defaultBranch: 'main',
     private: false,
     visibility: 'public',
     owner: {
-      login: 'vercel',
+      login: 'RicardoValdovinos',
     },
     primaryLanguage: 'TypeScript',
     createdAt: new Date().toISOString(),
@@ -165,12 +182,12 @@ const TEMPLATE_REPOS: Record<string, RepoInfo> = {
 
 const TEMPLATE_CARDS = [
   {
-    key: 'nextjs-boilerplate',
+    key: 'vite-react-boilerplate',
     title: 'Starter App',
-    desc: 'Get started with Next.js and React in seconds.',
-    funnyDesc: 'Mounts 10,000 node_modules to display "Hello World".',
+    desc: 'Get started with Vite and React in seconds.',
+    funnyDesc: 'A lightning-fast starter template with hot module replacement.',
     bgGradient: 'from-[#0A0A0A] via-[#161618] to-[#0A0A0A]',
-    logo: '🚀',
+    logo: '⚡',
     variant: 'starter' as const,
   },
   {
@@ -203,14 +220,7 @@ const TEMPLATE_CARDS = [
 ];
 
 function getPresetDefaults(framework: string) {
-  switch (framework) {
-    case 'Vite':
-      return { buildCommand: 'npm run build', outputDir: 'dist', installCommand: 'npm install' };
-    case 'Go / Docker':
-      return { buildCommand: 'docker build', outputDir: 'none', installCommand: 'none' };
-    default:
-      return { buildCommand: 'next build', outputDir: '.next', installCommand: 'npm install' };
-  }
+  return { buildCommand: 'npm run build', outputDir: 'dist', installCommand: 'npm install' };
 }
 
 function GlobeWireframe() {
@@ -332,6 +342,9 @@ export default function NewProjectPage() {
   // Repo list state
   const [repos, setRepos] = React.useState<RepoInfo[]>([]);
   const [reposLoading, setReposLoading] = React.useState(false);
+  const [loadingMore, setLoadingMore] = React.useState(false);
+  const [page, setPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(true);
   const [repoSearch, setRepoSearch] = React.useState('');
 
   const githubOwner = React.useMemo(() => {
@@ -346,7 +359,7 @@ export default function NewProjectPage() {
 
   // Configure form
   const [projectName, setProjectName] = React.useState('');
-  const [framework, setFramework] = React.useState('Next.js');
+  const [framework, setFramework] = React.useState('Vite');
   const [rootDir, setRootDir] = React.useState('./');
   const [buildCommand, setBuildCommand] = React.useState('next build');
   const [outputDir, setOutputDir] = React.useState('.next');
@@ -364,22 +377,49 @@ export default function NewProjectPage() {
   // Deploy state
   const [deploying, setDeploying] = React.useState(false);
 
-  // Fetch repos on mount
+  // Fetch repos on mount or page change
   React.useEffect(() => {
     if (!mounted) return;
-    setReposLoading(true);
-    fetch('/api/github/repos')
+    if (page > 1 && !hasMore) return;
+
+    if (page === 1) {
+      setReposLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+
+    fetch(`/api/github/repos?page=${page}&per_page=30`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setRepos(data);
+          if (data.length < 30) {
+            setHasMore(false);
+          }
+          setRepos((prev) => {
+            const existingIds = new Set(prev.map((r) => r.id));
+            const newRepos = data.filter((r) => !existingIds.has(r.id));
+            return [...prev, ...newRepos];
+          });
+        } else {
+          setHasMore(false);
         }
       })
       .catch(() => {
         toast.error('Failed to load GitHub repositories');
       })
-      .finally(() => setReposLoading(false));
-  }, [mounted]);
+      .finally(() => {
+        setReposLoading(false);
+        setLoadingMore(false);
+      });
+  }, [mounted, page]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 50;
+    if (isAtBottom && !reposLoading && !loadingMore && hasMore) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
   // Update build defaults when framework changes
   React.useEffect(() => {
@@ -413,6 +453,7 @@ export default function NewProjectPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          repoId: selectedRepo.id,
           repoName: selectedRepo.name,
           ownerName: selectedRepo.owner?.login,
           githubUrl: selectedRepo.cloneUrl,
@@ -441,7 +482,11 @@ export default function NewProjectPage() {
         }
       }
 
-      toast.success('Deployment initiated successfully!');
+      if (data.alreadyDeployed) {
+        toast.info('Project is already deployed. Redirecting to current deployment...');
+      } else {
+        toast.success('Deployment initiated successfully!');
+      }
       router.push(`/project/${data.projectId}/deployments/${data.deployment.id}`);
     } catch (err: any) {
       toast.error(err.message || 'Deployment failed');
@@ -467,7 +512,8 @@ export default function NewProjectPage() {
   const TopBar = (
     <div className="w-full border-b border-[#1f1f1f] bg-[#09090B]">
       <div className="flex items-center justify-between px-6 py-3">
-        <button
+        <Button
+          variant="ghost"
           onClick={() => {
             if (step === 'configure') setStep('select');
             else router.push('/dashboard');
@@ -476,16 +522,15 @@ export default function NewProjectPage() {
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back</span>
-        </button>
+        </Button>
         <span className="text-xs font-semibold text-white font-sans tracking-tight">New Project</span>
         <div className="flex items-center gap-3 text-[#A1A1AA]">
           <Settings
             onClick={() => router.push('/dashboard/settings')}
             className="h-4 w-4 hover:text-white cursor-pointer transition-colors"
           />
-          <div className="relative">
-            <button
-              onClick={() => setShowProfileMenu(!showProfileMenu)}
+          <DropdownMenu>
+            <DropdownMenuTrigger
               className="h-7 w-7 rounded-full border border-[#1f1f1f] bg-[#09090B] hover:border-white transition-colors overflow-hidden flex items-center justify-center text-[10px] font-mono font-semibold text-white cursor-pointer"
             >
               {user?.image ? (
@@ -493,49 +538,43 @@ export default function NewProjectPage() {
               ) : (
                 <span>{userInitials}</span>
               )}
-            </button>
-            {showProfileMenu && (
-              <>
-                <div className="fixed inset-0 z-30" onClick={() => setShowProfileMenu(false)} />
-                <div className="absolute right-0 mt-2 w-52 border border-[#1f1f1f] bg-[#111113] p-2 text-xs font-mono text-[#FAFAFA] rounded-md shadow-2xl z-40 space-y-1">
-                  <div className="px-2.5 py-2 border-b border-[#1f1f1f]/70 text-[#71717A] text-[10px] leading-tight">
-                    <p className="font-semibold text-zinc-300">{userName}</p>
-                    <p className="truncate">{userEmail}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/profile');
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white"
-                  >
-                    Profile Settings
-                  </button>
-                  <button
-                    onClick={() => {
-                      router.push('/dashboard/billing');
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white"
-                  >
-                    Billing Settings
-                  </button>
-                  <div className="h-[1px] bg-[#1f1f1f]" />
-                  <button
-                    onClick={async () => {
-                      useStore.getState().setIsAuthenticated(false);
-                      setShowProfileMenu(false);
-                      toast.info('Signed out of Nebula workspace');
-                      await signOut({ callbackUrl: '/login' });
-                    }}
-                    className="w-full text-left px-2.5 py-1.5 hover:bg-red-500/10 hover:text-[#EF4444] rounded-sm text-[#EF4444]"
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 border border-[#1f1f1f] bg-[#111113] p-2 text-xs font-mono text-[#FAFAFA] rounded-md shadow-2xl space-y-1">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="px-2.5 py-2 border-b border-[#1f1f1f]/70 text-[#71717A] text-[10px] leading-tight">
+                  <p className="font-semibold text-zinc-300">{userName}</p>
+                  <p className="truncate">{userEmail}</p>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push('/dashboard/profile');
+                }}
+                className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white cursor-pointer"
+              >
+                Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push('/dashboard/billing');
+                }}
+                className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white cursor-pointer"
+              >
+                Billing Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="h-[1px] bg-[#1f1f1f]" />
+              <DropdownMenuItem
+                onClick={async () => {
+                  useStore.getState().setIsAuthenticated(false);
+                  toast.info('Signed out of Nebula workspace');
+                  await signOut({ callbackUrl: '/login' });
+                }}
+                className="w-full text-left px-2.5 py-1.5 hover:bg-red-500/10 hover:text-[#EF4444] rounded-sm text-[#EF4444] cursor-pointer"
+              >
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
@@ -563,7 +602,7 @@ export default function NewProjectPage() {
           <div className="space-y-4">
             <div className="relative flex items-center">
               <Plus className="absolute left-4 h-5 w-5 text-[#71717A]" />
-              <input
+              <Input
                 type="text"
                 placeholder="Ask v0 to build or enter a Git repository URL..."
                 value={repoSearch}
@@ -574,44 +613,49 @@ export default function NewProjectPage() {
 
             {/* Quick start pills */}
             <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toast.info("Contact Form: Generates a form that sends user submissions directly to dev null.", { duration: 4000 })}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1f1f1f] bg-[#09090B] hover:bg-[#111113] text-xs font-mono text-[#FAFAFA] rounded-full transition-colors cursor-pointer"
               >
                 <Mail className="h-3.5 w-3.5 text-blue-400" />
                 <span>Contact Form</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toast.info("Image Editor: A tool that takes 4GB of memory just to overlay text on a cat image.", { duration: 4000 })}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1f1f1f] bg-[#09090B] hover:bg-[#111113] text-xs font-mono text-[#FAFAFA] rounded-full transition-colors cursor-pointer"
               >
                 <ImageIcon className="h-3.5 w-3.5 text-emerald-400" />
                 <span>Image Editor</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toast.info("Mini Game: A text adventure where you debug a dependency conflict for 3 hours.", { duration: 4000 })}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1f1f1f] bg-[#09090B] hover:bg-[#111113] text-xs font-mono text-[#FAFAFA] rounded-full transition-colors cursor-pointer"
               >
                 <Gamepad2 className="h-3.5 w-3.5 text-purple-400" />
                 <span>Mini Game</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toast.info("Finance Calculator: Compiles stats to show 90% of your budget is spent on serverless cold starts.", { duration: 4000 })}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1f1f1f] bg-[#09090B] hover:bg-[#111113] text-xs font-mono text-[#FAFAFA] rounded-full transition-colors cursor-pointer"
               >
                 <Calculator className="h-3.5 w-3.5 text-amber-400" />
                 <span>Finance Calculator</span>
-              </button>
+              </Button>
 
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => toast.success("Shuffling quick start templates... They are still the same, but they feel newer now.", { duration: 3000 })}
                 className="p-2 border border-[#1f1f1f] bg-[#09090B] hover:bg-[#111113] text-xs text-zinc-400 hover:text-white rounded-full transition-colors cursor-pointer"
               >
                 <RotateCw className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             </div>
 
             <p className="text-[11px] text-[#71717A] font-sans text-center sm:text-left">
@@ -702,22 +746,43 @@ export default function NewProjectPage() {
                       {!(session as any)?.accessToken ? (
                         <>
                           <p>GitHub account not connected.</p>
-                          <button
+                          <Button
                             onClick={() => signIn('github')}
                             className="px-4 py-2 bg-white text-black hover:bg-zinc-200 text-xs font-bold rounded-md transition-colors cursor-pointer flex items-center gap-1.5"
                           >
                             <Github className="h-4 w-4" />
                             <span>Connect to GitHub</span>
-                          </button>
+                          </Button>
                         </>
                       ) : repos.length === 0 ? (
                         <span>No repositories found in your GitHub account.</span>
                       ) : (
-                        <span>No matching repositories.</span>
+                        <div className="flex flex-col items-center gap-2">
+                          <span>No matching repositories found in loaded pages.</span>
+                          {hasMore && (
+                            <Button
+                              onClick={() => setPage((p) => p + 1)}
+                              disabled={loadingMore}
+                              className="px-3 py-1.5 bg-[#1f1f1f] hover:bg-zinc-800 text-white font-semibold text-xs rounded-md transition-colors mt-2"
+                            >
+                              {loadingMore ? (
+                                <>
+                                  <Loader2 className="h-3 w-3 animate-spin mr-1.5 inline" />
+                                  <span>Loading More...</span>
+                                </>
+                              ) : (
+                                "Load More Repositories"
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       )}
                     </div>
                   ) : (
-                    <div className="divide-y divide-[#1f1f1f] max-h-[420px] overflow-y-auto">
+                    <div
+                      onScroll={handleScroll}
+                      className="divide-y divide-[#1f1f1f] max-h-[420px] overflow-y-auto"
+                    >
                       {filteredRepos.map((repo) => (
                         <div key={repo.id || repo.fullName} className="flex items-center justify-between px-4 py-3.5 hover:bg-[#18181B] transition-colors">
                           <div className="flex items-center gap-3 min-w-0">
@@ -747,14 +812,33 @@ export default function NewProjectPage() {
                               </div>
                             </div>
                           </div>
-                          <button
+                          <Button
                             onClick={() => handleSelectRepo(repo)}
                             className="shrink-0 ml-4 px-3.5 py-1.5 bg-white text-black hover:bg-zinc-200 font-semibold text-xs rounded-md transition-colors"
                           >
                             Import
-                          </button>
+                          </Button>
                         </div>
                       ))}
+                      {hasMore && (
+                        <div className="p-3 text-center border-t border-[#1f1f1f]/50">
+                          <button
+                            type="button"
+                            disabled={reposLoading || loadingMore}
+                            onClick={() => setPage((p) => p + 1)}
+                            className="text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 w-full py-1.5"
+                          >
+                            {loadingMore ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin text-zinc-400" />
+                                <span>Loading more repositories...</span>
+                              </>
+                            ) : (
+                              <span>Load more repositories</span>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </Skeleton>
@@ -865,7 +949,7 @@ export default function NewProjectPage() {
 
                   <div className="space-y-1.5">
                     <label className="text-[10px] text-[#A1A1AA] font-bold font-mono uppercase tracking-wider">Project Name</label>
-                    <input
+                    <Input
                       type="text"
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
@@ -876,34 +960,37 @@ export default function NewProjectPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] text-[#A1A1AA] font-bold font-mono uppercase tracking-wider">Framework Preset</label>
-                  <select
+                  <Select
                     value={framework}
-                    onChange={(e) => setFramework(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#1f1f1f] bg-[#09090B] text-sm text-zinc-300 rounded-md outline-none focus:border-[#3f3f46] transition-colors font-mono"
+                    onValueChange={(val) => val && setFramework(val)}
                   >
-                    <option value="Next.js">Next.js</option>
-                    <option value="Vite">Vite (React / Vue / Svelte)</option>
-                    <option value="Go / Docker">Docker Container / Go</option>
-                  </select>
+                    <SelectTrigger className="w-full px-3 py-2 border border-[#1f1f1f] bg-[#09090B] text-sm text-zinc-300 rounded-md outline-none focus:border-[#3f3f46] transition-colors font-mono cursor-pointer">
+                      <SelectValue placeholder="Select Framework" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Vite">Vite (React / Vue / Svelte)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-[10px] text-[#A1A1AA] font-bold font-mono uppercase tracking-wider">Root Directory</label>
                   <div className="flex gap-2">
-                    <input
+                    <Input
                       type="text"
                       value={rootDir}
                       onChange={(e) => setRootDir(e.target.value)}
                       className="flex-1 px-3 py-2 border border-[#1f1f1f] bg-[#09090B] text-sm text-zinc-400 rounded-md outline-none font-mono"
                       disabled
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={() => toast.info('Root directory editor is locked to ./')}
                       className="px-4 py-2 border border-[#1f1f1f] hover:bg-[#18181B] text-white text-xs font-semibold rounded-md transition-colors font-mono"
                     >
                       Edit
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -921,7 +1008,7 @@ export default function NewProjectPage() {
                     <div className="p-4 border-t border-[#1f1f1f] space-y-3">
                       <div className="space-y-1">
                         <label className="text-[10px] text-[#71717A] font-mono uppercase">Build Command</label>
-                        <input
+                        <Input
                           type="text"
                           value={buildCommand}
                           onChange={(e) => setBuildCommand(e.target.value)}
@@ -930,7 +1017,7 @@ export default function NewProjectPage() {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] text-[#71717A] font-mono uppercase">Output Directory</label>
-                        <input
+                        <Input
                           type="text"
                           value={outputDir}
                           onChange={(e) => setOutputDir(e.target.value)}
@@ -939,7 +1026,7 @@ export default function NewProjectPage() {
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] text-[#71717A] font-mono uppercase">Install Command</label>
-                        <input
+                        <Input
                           type="text"
                           value={installCommand}
                           onChange={(e) => setInstallCommand(e.target.value)}
@@ -963,27 +1050,28 @@ export default function NewProjectPage() {
                   {openEnvVars && (
                     <div className="p-4 border-t border-[#1f1f1f] space-y-3">
                       <div className="flex gap-2">
-                        <input
+                        <Input
                           type="text"
                           placeholder="KEY"
                           value={envKey}
                           onChange={(e) => setEnvKey(e.target.value)}
                           className="flex-1 px-3 py-1.5 border border-[#1f1f1f] bg-[#111113] text-xs text-white rounded-md outline-none font-mono placeholder:text-[#52525B]"
                         />
-                        <input
+                        <Input
                           type="text"
                           placeholder="value"
                           value={envValue}
                           onChange={(e) => setEnvValue(e.target.value)}
                           className="flex-1 px-3 py-1.5 border border-[#1f1f1f] bg-[#111113] text-xs text-white rounded-md outline-none font-mono placeholder:text-[#52525B]"
                         />
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
                           onClick={addEnvVar}
                           className="px-3 py-1.5 border border-[#1f1f1f] hover:bg-[#18181B] text-xs text-white rounded-md transition-colors font-mono"
                         >
                           Add
-                        </button>
+                        </Button>
                       </div>
                       {envVars.length === 0 ? (
                         <p className="text-[11px] text-[#71717A] font-mono">No variables configured.</p>
@@ -1004,14 +1092,14 @@ export default function NewProjectPage() {
 
               {/* Deploy Button */}
               <div className="pt-2">
-                <button
+                <Button
                   onClick={handleDeploy}
                   disabled={!projectName.trim() || deploying}
                   className="w-full py-2.5 bg-white text-[#09090B] hover:bg-neutral-200 active:bg-neutral-300 font-bold text-sm rounded-md transition-colors font-sans disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
                 >
                   {deploying && <Loader2 className="h-4 w-4 animate-spin" />}
                   <span>{deploying ? 'Deploying...' : 'Deploy'}</span>
-                </button>
+                </Button>
               </div>
             </div>
 

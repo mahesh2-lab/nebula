@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { hashPassword } from "@/lib/auth/password";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,12 +22,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "User already exists with this email address" }, { status: 400 });
     }
 
-    // Insert user
+    // Insert user with hashed password
     const newUser = await db.insert(users).values({
       id: `u-${Math.random().toString(36).substring(2, 10)}`,
       name,
       email,
-      password, // Plaintext to align with credentials provider comparison
+      password: hashPassword(password),
       image: null
     }).returning().then(rows => rows[0]);
 

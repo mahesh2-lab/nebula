@@ -42,7 +42,7 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ req, token }) => {
-        if (req.headers.get("x-boneyard-bypass") === "true") {
+        if (process.env.ENABLE_BYPASS === "true" && req.headers.get("x-boneyard-bypass") === "true") {
           return true;
         }
         return !!token;

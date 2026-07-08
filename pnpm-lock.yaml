@@ -14,6 +14,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.6.0
         version: 1.6.0(@types/react@19.2.17)(date-fns@4.4.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      '@remixicon/react':
+        specifier: ^4.9.0
+        version: 4.9.0(react@19.2.4)
       boneyard-js:
         specifier: ^1.8.2
         version: 1.8.2(preact@10.29.3)(react@19.2.4)
@@ -77,6 +80,9 @@ importers:
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      svg-dotted-map:
+        specifier: ^2.1.0
+        version: 2.1.0
       tailwind-merge:
         specifier: ^3.6.0
         version: 3.6.0
@@ -1355,6 +1361,11 @@ packages:
         optional: true
       react-redux:
         optional: true
+
+  '@remixicon/react@4.9.0':
+    resolution: {integrity: sha512-5/jLDD4DtKxH2B4QVXTobvV1C2uL8ab9D5yAYNtFt+w80O0Ys1xFOrspqROL3fjrZi+7ElFUWE37hBfaAl6U+Q==}
+    peerDependencies:
+      react: '>=18.2.0'
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -4004,6 +4015,10 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
+  svg-dotted-map@2.1.0:
+    resolution: {integrity: sha512-4RnunTLPFMyQGnkeqL7BfFT+M/9disoFfDVZBq2eOfRrMgBQBmYbu09QcH/SAxez4JRmqM0UYSgo9u/cpkeykA==}
+    deprecated: This package has been renamed to piri. Please install that instead.
+
   systeminformation@5.31.13:
     resolution: {integrity: sha512-iUJXJoKzm4vtLSeT3nwe2s9QjoJAxHg7wYJ0KaQ54Xy2u9jsTq0ULWQQ0+T72FXjX2XnGqubazNx9lUfng7ELw==}
     engines: {node: '>=8.0.0'}
@@ -5362,6 +5377,10 @@ snapshots:
     optionalDependencies:
       react: 19.2.4
       react-redux: 9.3.0(@types/react@19.2.17)(react@19.2.4)(redux@5.0.1)
+
+  '@remixicon/react@4.9.0(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
 
   '@rtsao/scc@1.1.0': {}
 
@@ -8159,6 +8178,8 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  svg-dotted-map@2.1.0: {}
 
   systeminformation@5.31.13: {}
 

@@ -4,6 +4,15 @@ import * as React from 'react';
 import { Project } from '../../store/store';
 import { CreditCard, Award, ArrowUpRight, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableRow, 
+  TableHead, 
+  TableCell 
+} from '@/components/ui/table';
 
 export function Billing({ project }: { project?: Project }) {
   // Usage calculations
@@ -34,13 +43,13 @@ export function Billing({ project }: { project?: Project }) {
           <p className="text-xs text-[#71717A]">Linked credit card: Visa ending in 4242. Next renew billing date: August 1, 2026.</p>
         </div>
 
-        <button 
+        <Button 
           onClick={() => toast.success('Workspace tier upgrade options loaded.')}
           className="flex h-8 items-center justify-center gap-1 bg-white text-[#09090B] hover:bg-neutral-200 active:bg-neutral-300 text-xs font-semibold rounded-sm transition-colors font-mono"
         >
           <span>Upgrade Tier</span>
           <ArrowUpRight className="h-3.5 w-3.5" />
-        </button>
+        </Button>
       </div>
 
       {/* Usage statistics cards */}
@@ -105,41 +114,42 @@ export function Billing({ project }: { project?: Project }) {
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[#A1A1AA] font-bold">Past Invoices & Receipts</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#1f1f1f] bg-[#09090B]/60 text-[10px] text-[#71717A] uppercase">
-                <th className="p-3">Invoice ID</th>
-                <th className="p-3">Billing Date</th>
-                <th className="p-3">Total Amount</th>
-                <th className="p-3">Payment Status</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1f1f1f]">
+          <Table className="w-full text-left border-collapse">
+            <TableHeader>
+              <TableRow className="border-b border-[#1f1f1f] bg-[#09090B]/60 text-[10px] text-[#71717A] uppercase">
+                <TableHead className="p-3">Invoice ID</TableHead>
+                <TableHead className="p-3">Billing Date</TableHead>
+                <TableHead className="p-3">Total Amount</TableHead>
+                <TableHead className="p-3">Payment Status</TableHead>
+                <TableHead className="p-3 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-[#1f1f1f]">
               {invoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-[#18181B] transition-colors">
-                  <td className="p-3 font-semibold text-white">{inv.id}</td>
-                  <td className="p-3 text-zinc-400">{inv.date}</td>
-                  <td className="p-3 text-zinc-300">{inv.amount}</td>
-                  <td className="p-3">
+                <TableRow key={inv.id} className="hover:bg-[#18181B] transition-colors">
+                  <TableCell className="p-3 font-semibold text-white">{inv.id}</TableCell>
+                  <TableCell className="p-3 text-zinc-400">{inv.date}</TableCell>
+                  <TableCell className="p-3 text-zinc-300">{inv.amount}</TableCell>
+                  <TableCell className="p-3">
                     <span className="inline-flex items-center gap-1 text-[#22C55E] bg-[#22C55E]/10 px-2 py-0.5 rounded text-[10px] font-bold">
                       <CheckCircle2 className="h-3 w-3" />
                       {inv.status.toUpperCase()}
                     </span>
-                  </td>
-                  <td className="p-3 text-right">
-                    <button
+                  </TableCell>
+                  <TableCell className="p-3 text-right">
+                    <Button
+                      variant="ghost"
                       onClick={() => toast.info(`Downloading PDF receipt for ${inv.id}`)}
                       className="inline-flex items-center gap-1 px-2.5 py-1 border border-[#1f1f1f] hover:bg-[#09090B] hover:text-white rounded-sm text-[#A1A1AA] transition-colors"
                     >
                       <FileText className="h-3.5 w-3.5" />
                       <span>Download PDF</span>
-                    </button>
-                  </td>
-                </tr>
+                    </Button>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 

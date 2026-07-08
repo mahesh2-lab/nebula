@@ -185,14 +185,14 @@ export function Analytics({ project: initialProject }: { project?: Project }) {
           <div className="h-[180px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-                <XAxis dataKey="time" stroke="#71717A" fontSize={9} tickLine={false} />
-                <YAxis stroke="#71717A" fontSize={9} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="time" stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ background: '#111113', border: '1px solid #1f1f1f', fontSize: 10, fontFamily: 'monospace' }} 
-                  labelStyle={{ color: '#71717A' }}
+                  contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'monospace', color: 'var(--text)' }} 
+                  labelStyle={{ color: 'var(--muted-foreground)' }}
                 />
-                <Line type="monotone" dataKey="requests" stroke="#FAFAFA" strokeWidth={1.5} dot={false} />
+                <Line type="monotone" dataKey="requests" stroke="var(--text)" strokeWidth={1.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -208,14 +208,14 @@ export function Analytics({ project: initialProject }: { project?: Project }) {
             <div className="h-[180px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={projectComparisonData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-                  <XAxis dataKey="name" stroke="#71717A" fontSize={9} tickLine={false} />
-                  <YAxis stroke="#71717A" fontSize={9} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="name" stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ background: '#111113', border: '1px solid #1f1f1f', fontSize: 10, fontFamily: 'monospace' }} 
-                    labelStyle={{ color: '#71717A' }}
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'monospace', color: 'var(--text)' }} 
+                    labelStyle={{ color: 'var(--muted-foreground)' }}
                   />
-                  <Bar dataKey="requests" fill="#FAFAFA" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="requests" fill="var(--text)" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -229,14 +229,14 @@ export function Analytics({ project: initialProject }: { project?: Project }) {
             <div className="h-[180px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-                  <XAxis dataKey="time" stroke="#71717A" fontSize={9} tickLine={false} />
-                  <YAxis stroke="#71717A" fontSize={9} tickLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="time" stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
+                  <YAxis stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
                   <Tooltip 
-                    contentStyle={{ background: '#111113', border: '1px solid #1f1f1f', fontSize: 10, fontFamily: 'monospace' }} 
-                    labelStyle={{ color: '#71717A' }}
+                    contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'monospace', color: 'var(--text)' }} 
+                    labelStyle={{ color: 'var(--muted-foreground)' }}
                   />
-                  <Bar dataKey="bandwidth" fill="#FAFAFA" radius={[2, 2, 0, 0]} />
+                  <Bar dataKey="bandwidth" fill="var(--text)" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -252,12 +252,12 @@ export function Analytics({ project: initialProject }: { project?: Project }) {
           <div className="h-[180px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-                <XAxis dataKey="time" stroke="#71717A" fontSize={9} tickLine={false} />
-                <YAxis stroke="#71717A" fontSize={9} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="time" stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={9} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ background: '#111113', border: '1px solid #1f1f1f', fontSize: 10, fontFamily: 'monospace' }} 
-                  labelStyle={{ color: '#71717A' }}
+                  contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', fontSize: 10, fontFamily: 'monospace', color: 'var(--text)' }} 
+                  labelStyle={{ color: 'var(--muted-foreground)' }}
                 />
                 <Area type="monotone" dataKey="latency" stroke="#3B82F6" fill="rgba(59, 130, 246, 0.1)" strokeWidth={1.5} />
               </AreaChart>
@@ -282,7 +282,7 @@ export function Analytics({ project: initialProject }: { project?: Project }) {
                   <span className="text-[#71717A]">{reg.requests} ({reg.pct}%)</span>
                 </div>
                 <div className="w-full bg-[#09090B] h-1 border border-[#1f1f1f] overflow-hidden rounded-full">
-                  <div className="bg-white h-full" style={{ width: `${reg.pct}%` }} />
+                  <div className="bg-current h-full" style={{ width: `${reg.pct}%` }} />
                 </div>
               </div>
             ))}

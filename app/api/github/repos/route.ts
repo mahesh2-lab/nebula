@@ -46,7 +46,7 @@ function githubHeaders(token: string): HeadersInit {
   };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -73,15 +73,20 @@ export async function GET() {
     );
   }
 
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const perPage = parseInt(searchParams.get("per_page") || "30", 10);
+
   // Check cache first
-  const cached = repoCache.get(token);
+  const cacheKey = `${token}:${page}:${perPage}`;
+  const cached = repoCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
     return NextResponse.json(cached.projects);
   }
 
   try {
     const response = await fetch(
-      `${GITHUB_API}/user/repos?sort=updated&per_page=50&affiliation=owner,collaborator`,
+      `${GITHUB_API}/user/repos?sort=updated&per_page=${perPage}&page=${page}&affiliation=owner,collaborator`,
       {
         headers: githubHeaders(token),
         cache: "no-store",
@@ -123,7 +128,7 @@ export async function GET() {
     }));
 
     // Cache the result
-    repoCache.set(token, {
+    repoCache.set(cacheKey, {
       projects,
       expiresAt: Date.now() + CACHE_TTL,
     });

@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getProjectById } from "@/lib/db/queries";
 import { db } from "@/lib/db";
 import { deployments } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -7,8 +10,18 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string; deploymentId: string }> }
 ) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const { deploymentId } = await params;
+    const { projectId, deploymentId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
 
     // 1. Fetch deployment from DB
     const dep = await db.query.deployments.findFirst({

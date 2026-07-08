@@ -14,7 +14,8 @@ export async function GET(
 
   try {
     const { projectId } = await params;
-    const project = await getProjectById(projectId);
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -41,6 +42,11 @@ export async function PATCH(
 
   try {
     const { projectId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const body = await req.json();
     
     const { buildCommand, installCommand, outputDirectory, framework } = body;

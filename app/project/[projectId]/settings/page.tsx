@@ -17,7 +17,7 @@ export default function ProjectSettingsPage() {
   
   const project = projects.find(p => p.id === projectId);
 
-  const [framework, setFramework] = React.useState(project?.framework || 'nextjs');
+  const [framework, setFramework] = React.useState(project?.framework || 'vite');
   const [buildCommand, setBuildCommand] = React.useState(project?.buildCommand || '');
   const [installCommand, setInstallCommand] = React.useState(project?.installCommand || '');
   const [outputDirectory, setOutputDirectory] = React.useState(project?.outputDirectory || '');
@@ -29,7 +29,7 @@ export default function ProjectSettingsPage() {
   // Sync state variables if project finishes loading in the store
   React.useEffect(() => {
     if (project) {
-      setFramework(project.framework || 'nextjs');
+      setFramework(project.framework || 'vite');
       setBuildCommand(project.buildCommand || '');
       setInstallCommand(project.installCommand || '');
       setOutputDirectory(project.outputDirectory || '');
@@ -60,7 +60,7 @@ export default function ProjectSettingsPage() {
           throw new Error('Failed to load project settings');
         }
         const data = await res.json();
-        setFramework(data.framework || 'nextjs');
+        setFramework(data.framework || 'vite');
         setBuildCommand(data.buildCommand || '');
         setInstallCommand(data.installCommand || '');
         setOutputDirectory(data.outputDirectory || '');
@@ -156,6 +156,8 @@ export default function ProjectSettingsPage() {
     }
   };
 
+
+
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto py-10 px-6 space-y-8 animate-pulse">
@@ -204,10 +206,7 @@ export default function ProjectSettingsPage() {
                 onChange={(e) => setFramework(e.target.value)}
                 className="w-full h-10 px-3 border border-[#1f1f1f] bg-black text-xs text-[#FAFAFA] rounded-md outline-none focus:border-white transition-colors cursor-pointer font-sans"
               >
-                <option value="nextjs">Next.js</option>
                 <option value="vite">Vite / React</option>
-                <option value="go">Go / Docker</option>
-                <option value="python">Python / Docker</option>
               </select>
             </div>
 
@@ -269,6 +268,7 @@ export default function ProjectSettingsPage() {
           <h3 className="text-[11px] font-bold uppercase tracking-wider font-mono">DANGER ZONE</h3>
         </div>
 
+        {/* Delete Project block */}
         <div className="border border-[#EF4444]/40 bg-[#EF4444]/5 p-4 rounded-md space-y-4 max-w-xl">
           <div className="space-y-1 text-xs">
             <p className="font-semibold text-white">Delete Project</p>

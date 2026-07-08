@@ -6,6 +6,8 @@ import { useStore } from '../../store/store';
 import { Github, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { signIn, useSession, getProviders } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 // Custom SVG Google OAuth Icon
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -188,7 +190,7 @@ export default function Login() {
           {view === 'signup' && (
             <div className="space-y-1">
               <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block">Full Name</label>
-              <input
+              <Input
                 type="text"
                 placeholder="Mahesh Kumar"
                 value={name}
@@ -202,7 +204,7 @@ export default function Login() {
           
           <div className="space-y-1">
             <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block">Email Address</label>
-            <input
+            <Input
               type="email"
               placeholder="name@domain.com"
               value={email}
@@ -217,16 +219,17 @@ export default function Login() {
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block">Password</label>
               {view === 'signin' && (
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => toast.info('Password recovery demo triggered.')}
                   className="text-[9px] font-mono text-zinc-500 hover:text-white uppercase hover:underline cursor-pointer"
                 >
                   Forgot?
-                </button>
+                </Button>
               )}
             </div>
-            <input
+            <Input
               type="password"
               placeholder="••••••••"
               value={password}
@@ -254,7 +257,7 @@ export default function Login() {
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={isLoading}
             className="w-full flex cursor-pointer items-center justify-center gap-1.5 px-3 py-2 bg-white text-black hover:bg-zinc-200 disabled:opacity-40 text-xs font-semibold rounded-md transition-colors"
@@ -267,7 +270,7 @@ export default function Login() {
             ) : (
               <span>{view === 'signin' ? 'Continue with Email' : 'Create Account'}</span>
             )}
-          </button>
+          </Button>
         </form>
 
         {/* Divider separator */}
@@ -279,8 +282,9 @@ export default function Login() {
 
         {/* OAuth Buttons */}
         <div className="grid grid-cols-2 gap-2">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handleGithubClick}
             disabled={isLoading}
             className="flex cursor-pointer items-center justify-center gap-2 px-3 py-2 border border-[#1f1f1f] bg-black hover:bg-[#111113] hover:text-white disabled:opacity-40 text-xs font-mono text-zinc-300 rounded-md transition-colors"
@@ -291,10 +295,11 @@ export default function Login() {
               <Github className="h-3.5 w-3.5 text-white" />
             )}
             <span>GitHub</span>
-          </button>
+          </Button>
           
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={handleGoogleClick}
             disabled={isLoading}
             className="flex cursor-pointer items-center justify-center gap-2 px-3 py-2 border border-[#1f1f1f] bg-black hover:bg-[#111113] hover:text-white disabled:opacity-40 text-xs font-mono text-zinc-300 rounded-md transition-colors"
@@ -305,13 +310,14 @@ export default function Login() {
               <GoogleIcon className="h-3.5 w-3.5" />
             )}
             <span>Google</span>
-          </button>
+          </Button>
         </div>
 
         {/* SAML SSO alternative */}
         {view === 'signin' && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => simulateOAuth('saml')}
             disabled={isLoading}
             className="w-full flex cursor-pointer items-center justify-center py-1.5 border border-[#1f1f1f] bg-black hover:bg-[#111113] hover:text-white text-[10px] font-mono text-zinc-400 rounded-md transition-colors"
@@ -320,7 +326,7 @@ export default function Login() {
               <RefreshCw className="h-2.5 w-2.5 animate-spin mr-1.5" />
             ) : null}
             <span>Single Sign-On (SAML SSO)</span>
-          </button>
+          </Button>
         )}
 
         {/* Switch Signin/Signup Toggle */}
@@ -328,26 +334,28 @@ export default function Login() {
           {view === 'signin' ? (
             <span>
               Don't have an account?{' '}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setView('signup')}
-                className="text-white hover:underline uppercase font-bold cursor-pointer"
+                className="text-white hover:underline uppercase font-bold cursor-pointer inline-block"
                 disabled={isLoading}
               >
                 Sign Up
-              </button>
+              </Button>
             </span>
           ) : (
             <span>
               Already have an account?{' '}
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => setView('signin')}
-                className="text-white hover:underline uppercase font-bold cursor-pointer"
+                className="text-white hover:underline uppercase font-bold cursor-pointer inline-block"
                 disabled={isLoading}
               >
                 Sign In
-              </button>
+              </Button>
             </span>
           )}
         </div>

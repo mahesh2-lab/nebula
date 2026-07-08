@@ -9,6 +9,8 @@ import { ChevronRight } from 'lucide-react';
 import { ProjectLayoutSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function ProjectLayout({ children }: { children: React.ReactNode }) {
   const params = useParams();
   const router = useRouter();
@@ -21,10 +23,11 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   const inspectedDeploymentId = useStore((s) => s.inspectedDeploymentId);
   const setActiveProjectId = useStore((s) => s.setActiveProjectId);
 
-  const [loading, setLoading] = React.useState(projects.length === 0);
+  const [loading, setLoading] = React.useState(projects.length === 0 || !projects.some(p => p.id === projectId));
 
   React.useEffect(() => {
     async function loadProjects() {
+      setLoading(true);
       try {
         const res = await fetch('/api/projects');
         if (res.ok) {
@@ -41,12 +44,12 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
       }
     }
 
-    if (projects.length === 0) {
+    if (projects.length === 0 || !projects.some(p => p.id === projectId)) {
       loadProjects();
     } else {
       setLoading(false);
     }
-  }, [projects.length, setProjects]);
+  }, [projects.length, projectId, setProjects]);
 
   React.useEffect(() => {
     if (projectId) {
@@ -74,7 +77,29 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
   }
 
   if (!project) {
-    return <div className="p-6 text-xs font-mono text-[#71717A]">Project not found</div>;
+    return (
+      <SidebarLayout 
+        activeTab="projects" 
+        setActiveTab={(tab) => {
+          if (tab === 'projects') router.push('/dashboard');
+          else router.push(`/dashboard/${tab}`);
+        }}
+        onCreateProjectClick={() => {
+          router.push('/new');
+        }}
+      >
+        <div className="p-12 text-center text-xs font-mono text-[#71717A] flex flex-col items-center justify-center space-y-4">
+          <p className="text-sm text-zinc-200">Project Not Found</p>
+          <p className="text-zinc-500 max-w-sm">This project doesn't exist, was deleted, or belongs to another user. Maybe it's time to start fresh?</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-4 py-2 border border-zinc-700 bg-zinc-900 hover:bg-white hover:text-black hover:border-white text-zinc-300 rounded-sm font-bold cursor-pointer transition-all duration-200"
+          >
+            Go Back to Dashboard
+          </button>
+        </div>
+      </SidebarLayout>
+    );
   }
 
   return (
@@ -99,7 +124,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
       <div className="flex flex-col h-full">
         {/* Inner project header tabs */}
         {!inspectedDeploymentId && !isLogsPage && (
-          <div className="px-6 border-b border-[#1f1f1f] bg-[#111113]/50 flex items-center justify-between">
+          <div className="px-6 border-b border-[#1f1f1f] bg-surface flex items-center justify-between">
             <div className="flex flex-wrap gap-1 pt-2 max-w-5xl mx-auto w-full">
               {[
                 { id: 'overview', label: 'Overview', path: `/project/${projectId}` },
@@ -118,8 +143,8 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
                     href={tab.path}
                     className={`px-3 py-2 text-xs font-mono border-b-2 transition-all ${
                       isActive 
-                        ? 'border-white text-white font-semibold' 
-                        : 'border-transparent text-[#A1A1AA] hover:text-white'
+                        ? 'border-foreground text-foreground font-semibold' 
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {tab.label}
@@ -129,7 +154,7 @@ export default function ProjectLayout({ children }: { children: React.ReactNode 
             </div>
             <Link 
               href="/dashboard"
-              className="text-xs text-[#71717A] hover:text-[#FAFAFA] font-mono flex items-center gap-1 py-2 pr-6 shrink-0"
+              className="text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1 py-2 pr-6 shrink-0"
             >
               Dashboard <ChevronRight className="h-3.5 w-3.5" />
             </Link>

@@ -15,6 +15,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSession, signIn } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export function UserSettings() {
   const { data: session } = useSession();
@@ -103,12 +106,12 @@ export function UserSettings() {
                 <span className="h-2 w-2 rounded-full bg-[#EF4444]" />
                 <span className="font-mono text-zinc-400">Not connected to GitHub</span>
               </div>
-              <button 
+              <Button 
                 onClick={() => signIn('github')}
                 className="px-3 py-1.5 bg-white text-black hover:bg-zinc-200 text-[10px] font-mono font-bold rounded-md transition-colors cursor-pointer"
               >
                 Connect to GitHub
-              </button>
+              </Button>
             </>
           ) : (
             <>
@@ -116,12 +119,13 @@ export function UserSettings() {
                 <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
                 <span className="font-mono text-zinc-300">connected to github.com</span>
               </div>
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={() => toast.success('GitHub account configuration synchronized')}
                 className="px-3 py-1.5 border border-[#1f1f1f] hover:bg-[#111113] active:bg-[#18181B] text-[10px] font-mono rounded-md transition-colors text-zinc-300 cursor-pointer"
               >
                 Sync Account
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -137,7 +141,7 @@ export function UserSettings() {
         <form onSubmit={handleAddSshKey} className="space-y-4 font-mono text-xs max-w-xl">
           <div className="space-y-1.5">
             <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">KEY NAME / DESCRIPTION</label>
-            <input
+            <Input
               type="text"
               placeholder="e.g. My MacBook Pro"
               value={newSshTitle}
@@ -149,7 +153,7 @@ export function UserSettings() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">SSH KEY VALUE (PUBKEY)</label>
-            <textarea
+            <Textarea
               placeholder="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5..."
               value={newSshKey}
               onChange={(e) => setNewSshKey(e.target.value)}
@@ -159,13 +163,13 @@ export function UserSettings() {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             className="flex items-center justify-center gap-1.5 bg-white text-black hover:bg-zinc-200 text-xs font-bold px-4 py-2 rounded-md transition-colors cursor-pointer"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add SSH Key</span>
-          </button>
+          </Button>
         </form>
 
         <div className="pt-4 space-y-3">
@@ -177,12 +181,13 @@ export function UserSettings() {
                   <p className="font-semibold text-white">{key.title}</p>
                   <p className="text-[10px] text-[#71717A]">{key.fingerprint}</p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   onClick={() => handleDeleteSshKey(key.id, key.title)}
                   className="p-2 border border-[#1f1f1f] hover:bg-[#EF4444]/10 hover:text-[#EF4444] rounded-md text-[#71717A] transition-colors cursor-pointer"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>

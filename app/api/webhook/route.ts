@@ -29,16 +29,29 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const repoId = repository.id;
         const repoName = repository.name;
+        const repoFullName = repository.full_name; // e.g. "owner/repo"
         const repoSlug = slugify(repoName, { lower: true, strict: true });
-        console.info(`[Webhook API] Processing push event for repository: ${repoSlug}`);
+        const fullRepoPath = repoFullName.toLowerCase();
+        const stringifiedRepoId = repoId ? String(repoId) : "";
+        console.info(`[Webhook API] Processing push event for repository: ${stringifiedRepoId} (${fullRepoPath})`);
 
-        // 3. Resolve corresponding project from the database
-        const project = await getProjectByRepository(repoSlug);
+        // 3. Resolve corresponding project from the database (check by stringifiedRepoId first, then fullRepoPath, fallback to repoSlug)
+        let project = null;
+        if (stringifiedRepoId) {
+            project = await getProjectByRepository(stringifiedRepoId);
+        }
         if (!project) {
-            console.warn(`[Webhook API] No project found matching repository: ${repoSlug}`);
+            project = await getProjectByRepository(fullRepoPath);
+        }
+        if (!project) {
+            project = await getProjectByRepository(repoSlug);
+        }
+        if (!project) {
+            console.warn(`[Webhook API] No project found matching repository: ${fullRepoPath}`);
             return NextResponse.json(
-                { error: `Project not found for repository: ${repoSlug}` },
+                { error: `Project not found for repository: ${fullRepoPath}` },
                 { status: 404 }
             );
         }

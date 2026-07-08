@@ -32,13 +32,13 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com https://lh3.googleusercontent.com; font-src 'self' data:; connect-src 'self' http://localhost:9002 ws://localhost:9002 https://github.com https://google.com https://accounts.google.com; frame-src 'self' http://*.localhost:* http://*.localhost http://*.nebula.dev https://*.nebula.dev;",
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com https://lh3.googleusercontent.com; font-src 'self' data:; connect-src 'self' http://localhost:9002 ws://localhost:9002 https://github.com https://google.com https://accounts.google.com; frame-src 'self' http://*.localhost:* http://*.localhost http://*.nebula.dev https://*.nebula.dev http://*.hostmyidea.me:* http://*.hostmyidea.me https://*.hostmyidea.me;",
           },
         ],
       },
     ];
   },
-  allowedDevOrigins: ['sharp-egret-inviting.ngrok-free.app'],
+  allowedDevOrigins: ['sharp-egret-inviting.ngrok-free.app', 'hostmyidea.me', '*.hostmyidea.me', 'localhost:3000'],
 };
 
 export default nextConfig;

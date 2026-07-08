@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { BookOpen, Shield, CloudLightning } from 'lucide-react';
 
+export const dynamic = 'force-static';
+
 export default function DocsPlatformPage() {
   return (
     <div className="space-y-6 font-sans">

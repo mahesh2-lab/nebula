@@ -1,6 +1,7 @@
 import { db } from './index';
 import { users, projects, deployments, envVariables, domains, apiKeys } from './schema';
 import { eq } from 'drizzle-orm';
+import { hashPassword } from '../auth/password';
 
 export async function seedDatabase() {
   console.log('Seeding database...');
@@ -19,7 +20,7 @@ export async function seedDatabase() {
       id: '1',
       name: 'Workspace Admin',
       email: adminEmail,
-      password: adminPassword,
+      password: hashPassword(adminPassword),
       image: null
     }).returning().then(rows => rows[0]);
     adminId = admin.id;
@@ -27,7 +28,7 @@ export async function seedDatabase() {
   } else {
     adminId = existingAdmin.id;
     // Update password if changed
-    await db.update(users).set({ password: adminPassword }).where(eq(users.id, adminId));
+    await db.update(users).set({ password: hashPassword(adminPassword) }).where(eq(users.id, adminId));
     console.log('Admin user already exists');
   }
 
@@ -45,7 +46,8 @@ export async function seedDatabase() {
       branch: 'main',
       buildCommand: 'npm run build',
       outputDirectory: '.next',
-      installCommand: 'npm install'
+      installCommand: 'npm install',
+      userId: adminId,
     }).returning().then(rows => rows[0]);
 
     // Project 2: Go Edge API
@@ -57,7 +59,8 @@ export async function seedDatabase() {
       branch: 'main',
       buildCommand: 'go build -o api main.go',
       outputDirectory: 'dist',
-      installCommand: 'go mod download'
+      installCommand: 'go mod download',
+      userId: adminId,
     }).returning().then(rows => rows[0]);
 
     // Project 3: React Docs
@@ -69,7 +72,8 @@ export async function seedDatabase() {
       branch: 'main',
       buildCommand: 'npm run build',
       outputDirectory: 'build',
-      installCommand: 'npm install'
+      installCommand: 'npm install',
+      userId: adminId,
     }).returning().then(rows => rows[0]);
 
     // Seed deployments

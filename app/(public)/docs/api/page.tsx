@@ -4,6 +4,8 @@ import * as React from 'react';
 import { BookOpen, Key, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
+export const dynamic = 'force-static';
+
 export default function DocsApiPage() {
   const [copiedId, setCopiedId] = React.useState<string | null>(null);
 

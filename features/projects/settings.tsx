@@ -5,6 +5,26 @@ import { Project, useStore } from '../../store/store';
 import { Settings as SettingsIcon, AlertTriangle, ShieldAlert, Trash2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { SettingsSkeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 export function Settings({ project: initialProject }: { project?: Project }) {
   const projects = useStore((s) => s.projects);
@@ -132,7 +152,7 @@ export function Settings({ project: initialProject }: { project?: Project }) {
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">WORKSPACE NAMESPACE</label>
-                <input
+                <Input
                   type="text"
                   value={workspaceName}
                   onChange={(e) => setWorkspaceName(e.target.value)}
@@ -143,21 +163,25 @@ export function Settings({ project: initialProject }: { project?: Project }) {
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">DEFAULT DEPLOY REGION</label>
-                <select
+                <Select
                   value={defaultRegion}
-                  onChange={(e) => setDefaultRegion(e.target.value)}
-                  className="w-full h-10 px-3.5 border border-[#1f1f1f] bg-black text-xs text-zinc-400 rounded-md outline-none focus:border-white cursor-pointer"
+                  onValueChange={(val) => val && setDefaultRegion(val)}
                 >
-                  <option>iad1 (US East)</option>
-                  <option>sfo1 (US West)</option>
-                  <option>cdg1 (Europe West)</option>
-                  <option>sin1 (Asia Pacific)</option>
-                </select>
+                  <SelectTrigger className="w-full h-10 px-3.5 border border-[#1f1f1f] bg-black text-xs text-zinc-400 rounded-md outline-none focus:border-white cursor-pointer">
+                    <SelectValue placeholder="Select region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="iad1 (US East)">iad1 (US East)</SelectItem>
+                    <SelectItem value="sfo1 (US West)">sfo1 (US West)</SelectItem>
+                    <SelectItem value="cdg1 (Europe West)">cdg1 (Europe West)</SelectItem>
+                    <SelectItem value="sin1 (Asia Pacific)">sin1 (Asia Pacific)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">DEFAULT PRODUCTION BRANCH</label>
-                <input
+                <Input
                   type="text"
                   value={defaultBranch}
                   onChange={(e) => setDefaultBranch(e.target.value)}
@@ -167,12 +191,12 @@ export function Settings({ project: initialProject }: { project?: Project }) {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               className="px-4 py-2 bg-white text-black hover:bg-zinc-200 font-bold rounded-md transition-colors cursor-pointer"
             >
               Save configurations
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -188,12 +212,13 @@ export function Settings({ project: initialProject }: { project?: Project }) {
               <p className="font-semibold text-white">Require 2FA</p>
               <p className="text-[10px] text-zinc-500 font-mono">Require two-factor authentication for all workspace members.</p>
             </div>
-            <button 
+            <Button 
+              variant="ghost"
               onClick={() => toast.info('Two-Factor authentication enforcement enabled')}
               className="px-3 py-1.5 border border-[#1f1f1f] hover:bg-[#111113] active:bg-[#18181B] text-[10px] font-mono rounded-md transition-colors text-zinc-300 cursor-pointer"
             >
               Enable Policy
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -216,7 +241,7 @@ export function Settings({ project: initialProject }: { project?: Project }) {
           <div className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">BUILD COMMAND</label>
-              <input
+              <Input
                 type="text"
                 value={buildCommand}
                 onChange={(e) => setBuildCommand(e.target.value)}
@@ -226,7 +251,7 @@ export function Settings({ project: initialProject }: { project?: Project }) {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">INSTALL COMMAND</label>
-              <input
+              <Input
                 type="text"
                 value={installCommand}
                 onChange={(e) => setInstallCommand(e.target.value)}
@@ -236,7 +261,7 @@ export function Settings({ project: initialProject }: { project?: Project }) {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">ROOT DIRECTORY</label>
-              <input
+              <Input
                 type="text"
                 value={rootDir}
                 onChange={(e) => setRootDir(e.target.value)}
@@ -245,12 +270,12 @@ export function Settings({ project: initialProject }: { project?: Project }) {
             </div>
           </div>
 
-          <button
+          <Button
             type="submit"
             className="px-4 py-2 bg-white text-black hover:bg-zinc-200 font-bold rounded-md transition-colors cursor-pointer"
           >
             Save configurations
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -269,7 +294,7 @@ export function Settings({ project: initialProject }: { project?: Project }) {
 
           <div className="space-y-2 font-mono text-xs">
             <p className="text-[10px] text-[#A1A1AA] uppercase tracking-wider">Type <span className="text-white font-bold">{activeProject.name}</span> to confirm deletion:</p>
-            <input
+            <Input
               type="text"
               placeholder={activeProject.name}
               value={deleteConfirm}
@@ -278,13 +303,34 @@ export function Settings({ project: initialProject }: { project?: Project }) {
             />
           </div>
 
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-1.5 px-4 py-2 bg-[#EF4444] hover:bg-red-700 text-white font-bold rounded-md transition-colors cursor-pointer text-xs"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            <span>Tear down project</span>
-          </button>
+          <AlertDialog>
+            <AlertDialogTrigger
+              className="flex items-center gap-1.5 px-4 py-2 bg-[#EF4444] hover:bg-red-700 text-white font-bold rounded-md transition-colors cursor-pointer text-xs"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span>Tear down project</span>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="dark bg-[#0a0a0a] border border-[#1f1f1f] text-zinc-300 font-mono text-xs">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-sm font-semibold text-white">Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="text-zinc-400 text-xs">
+                  This action permanently deletes the project repository mapping, domains configuration, and all active CDN deployment cache records. This action is irreversible.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex justify-end gap-2 mt-4">
+                <AlertDialogCancel className="border border-[#1f1f1f] text-zinc-400 hover:text-white px-3 py-1.5 text-xs font-mono rounded-md bg-transparent">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleteConfirm !== activeProject.name}
+                  className="bg-[#EF4444] hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold px-3 py-1.5 text-xs font-mono rounded-md"
+                >
+                  Confirm Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

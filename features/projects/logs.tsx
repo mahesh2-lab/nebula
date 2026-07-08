@@ -203,16 +203,9 @@ export function Logs({ project: initialProject }: { project?: Project }) {
     };
   }, [activeProject?.id, activeProject?.deployments?.[0]?.id]);
 
-  const displayedMockLogs = React.useMemo(() => {
-    if (!activeProject) return MOCK_LOGS;
-    return MOCK_LOGS.map(log => ({
-      ...log,
-      project: activeProject.id,
-      host: log.host.replace('alles-backend', activeProject.id).replace('next-auth-app', activeProject.id)
-    }));
-  }, [activeProject]);
 
-  const activeLogs = realLogs.length > 0 ? realLogs : displayedMockLogs;
+
+  const activeLogs = realLogs.length > 0 ? realLogs : [];
 
   // Accordion toggle states
   const [accordions, setAccordions] = React.useState<Record<string, boolean>>({

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { deleteDomain } from "@/lib/db/queries";
+import { deleteDomain, getProjectById } from "@/lib/db/queries";
 
 export async function DELETE(
   req: NextRequest,
@@ -14,6 +14,11 @@ export async function DELETE(
 
   try {
     const { projectId, domainName } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const decodedDomain = decodeURIComponent(domainName);
     const deleted = await deleteDomain(projectId, decodedDomain);
     if (!deleted) {

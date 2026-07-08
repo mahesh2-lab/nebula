@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { verifyPassword } from "@/lib/auth/password";
 
 const providers = [];
 
@@ -53,7 +54,7 @@ providers.push(
           where: eq(users.email, credentials.email)
         });
 
-        if (user && user.password === credentials.password) {
+        if (user && user.password && verifyPassword(credentials.password, user.password)) {
           return {
             id: user.id,
             name: user.name || "Workspace User",
@@ -65,21 +66,6 @@ providers.push(
         console.error("Auth database query error:", err);
       }
 
-      const adminEmail = process.env.ADMIN_EMAIL;
-      const adminPassword = process.env.ADMIN_PASSWORD;
-
-      if (
-        adminEmail &&
-        adminPassword &&
-        credentials.email === adminEmail &&
-        credentials.password === adminPassword
-      ) {
-        return {
-          id: "1",
-          name: "Workspace Admin",
-          email: credentials.email,
-        };
-      }
       return null;
     }
   })
@@ -148,16 +134,17 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account }) {
-      if (user.email) {
+      const email = user.email || (account?.provider === 'github' ? `${user.id}@github.placeholder.nebula.dev` : undefined);
+      if (email) {
         try {
           const existingUser = await db.query.users.findFirst({
-            where: eq(users.email, user.email)
+            where: eq(users.email, email)
           });
           if (!existingUser) {
             await db.insert(users).values({
               id: user.id || `u-${Math.random().toString(36).substring(2, 9)}`,
               name: user.name || "Nebula User",
-              email: user.email,
+              email: email,
               image: user.image || null,
               password: null
             });
@@ -168,8 +155,32 @@ export const authOptions: NextAuthOptions = {
       }
       return true;
     },
-    async jwt({ token, account }) {
-      // First sign-in — store all OAuth tokens from the provider
+    async jwt({ token, account, user }) {
+      const email = token.email || `${(token.userId as string) || (user?.id as string) || 'unknown'}@github.placeholder.nebula.dev`;
+      try {
+        let dbUser = await db.query.users.findFirst({
+          where: eq(users.email, email)
+        });
+        
+        if (!dbUser) {
+          console.log(`[NextAuth] User ${email} not found in DB. Recreating user record...`);
+          const newId = (token.userId as string) || (user?.id as string) || `u-${Math.random().toString(36).substring(2, 10)}`;
+          const inserted = await db.insert(users).values({
+            id: newId,
+            name: (token.name as string) || "Nebula User",
+            email: email,
+            image: (token.picture as string) || null,
+            password: null
+          }).returning().then(rows => rows[0]);
+          dbUser = inserted;
+        }
+        
+        token.userId = dbUser.id;
+        token.email = email;
+      } catch (err) {
+        console.error("JWT user fetch/recreate error:", err);
+      }
+
       if (account) {
         return {
           ...token,
@@ -204,6 +215,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         (session as any).accessToken = token.accessToken;
         (session as any).error = token.error;
+        (session.user as any).id = token.userId;
       }
       return session;
     }

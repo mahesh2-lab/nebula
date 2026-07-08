@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Geist } from "next/font/google";
+import { Inter, JetBrains_Mono, Geist, Merriweather } from "next/font/google";
 import "./globals.css"; // Global styles, including cursor pointer rules
 import { Providers } from "@/components/providers";
 import { cn } from "@/lib/utils";
 
+const merriweatherHeading = Merriweather({subsets:['latin'],variable:'--font-heading'});
+
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
 export const metadata: Metadata = {
   title: "Nebula - Cloud Deployment Platform",
@@ -25,7 +24,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn("h-full", "antialiased", jetbrainsMono.variable, "font-sans", geist.variable)}
+      className={cn("h-full", "antialiased", geist.variable, "font-mono", jetbrainsMono.variable, merriweatherHeading.variable)}
     >
       <head>
         <script

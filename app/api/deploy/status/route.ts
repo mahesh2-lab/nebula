@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { deployments, projects } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { revalidateTag } from "next/cache";
 
 export async function POST(req: NextRequest) {
   try {
+    // Shared secret authorization check
+    const authHeader = req.headers.get("authorization");
+    const webhookSecret = process.env.STATUS_WEBHOOK_SECRET || "fallback_default_secret_for_dev_only";
+    if (!authHeader || authHeader !== `Bearer ${webhookSecret}`) {
+      console.warn(`[Deploy Status API] Unauthorized webhook status update attempt.`);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { deploymentId, status, logs } = await req.json();
 
     if (!deploymentId || !status) {
@@ -30,6 +39,17 @@ export async function POST(req: NextRequest) {
     await db.update(projects)
       .set({ updatedAt: new Date() })
       .where(eq(projects.id, updatedDep.projectId));
+
+    // 2.5. Invalidate Next.js cache tags
+    try {
+      revalidateTag('deployments', 'max');
+      revalidateTag(`deployments-${updatedDep.projectId}`, 'max');
+      revalidateTag(`project-${updatedDep.projectId}`, 'max');
+      revalidateTag('projects', 'max');
+      console.info(`[Deploy Status API] Invalidated cache tags for project: ${updatedDep.projectId}`);
+    } catch (cacheErr: any) {
+      console.error("[Deploy Status API] Cache revalidation failed:", cacheErr.message);
+    }
 
     // 3. Publish status update to Redis
     try {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getProjectByRepository, createProject, updateProject, createDeployment } from "@/lib/db/queries";
+import { getProjectByRepository, createProject, updateProject, createDeployment, getDeployments, ensureUserInDb } from "@/lib/db/queries";
 import { buildProject } from "@/lib/build/triggerBuild";
 import slugify from "slugify";
 import crypto from "crypto";
@@ -17,32 +17,11 @@ function detectFramework(repoName: string): {
   defaultInstallCommand: string;
   defaultBuildCommand: string;
 } {
-  const lowerName = repoName.toLowerCase();
-
-  if (lowerName.includes("vite") || lowerName.includes("react") || lowerName.includes("svelte")) {
-    return {
-      framework: "vite",
-      defaultOutputDir: "dist",
-      defaultInstallCommand: "npm install",
-      defaultBuildCommand: "npm run build",
-    };
-  }
-
-  if (lowerName.includes("go") || lowerName.includes("docker")) {
-    return {
-      framework: "go",
-      defaultOutputDir: "dist",
-      defaultInstallCommand: "go mod download",
-      defaultBuildCommand: "go build -o api main.go",
-    };
-  }
-
-  // Default framework is Next.js
   return {
-    framework: "nextjs",
-    defaultOutputDir: ".next",
+    framework: "vite",
+    defaultOutputDir: "dist",
     defaultInstallCommand: "npm install",
-    defaultBuildCommand: "next build",
+    defaultBuildCommand: "npm run build",
   };
 }
 
@@ -57,10 +36,15 @@ function parseOwnerFromUrl(githubUrl: string): string | null {
 export async function POST(req: NextRequest) {
   // 1. Authenticate user session
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session || !session.user || !session.user.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const token = (session as any).accessToken;
+  const rawUserId = (session.user as any)?.id;
+
+  // Resolve or recreate the database user record to prevent foreign key violations
+  const dbUser = await ensureUserInDb(rawUserId, session.user.email, session.user.name, session.user.image);
+  const userId = dbUser.id;
 
   // 2. Parse request payload safely
   let body: any;
@@ -71,6 +55,7 @@ export async function POST(req: NextRequest) {
   }
 
   const {
+    repoId,
     repoName,
     ownerName,
     githubUrl,
@@ -129,10 +114,48 @@ export async function POST(req: NextRequest) {
   // 5. Setup Project and Deployment
   try {
     const repoSlug = slugify(repoName, { lower: true, strict: true });
+    const fullRepoPath = `${resolvedOwner}/${repoName}`.toLowerCase();
+    const stringifiedRepoId = repoId ? String(repoId) : "";
 
-    // Resolve project details from DB (using database-level lookup)
-    const existingProject = await getProjectByRepository(repoSlug);
+    // Resolve project details from DB (scoped by current userId)
+    let existingProject = null;
+    if (stringifiedRepoId) {
+      existingProject = await getProjectByRepository(stringifiedRepoId, userId);
+    }
+    if (!existingProject) {
+      existingProject = await getProjectByRepository(fullRepoPath, userId);
+    }
+    if (!existingProject) {
+      existingProject = await getProjectByRepository(repoSlug, userId);
+    }
     let targetProjectId: string;
+
+    if (existingProject) {
+      const projectDeps = await getDeployments(existingProject.id);
+      const latestDep = projectDeps[0];
+      if (latestDep) {
+        console.info(`[Deploy API] Project already deployed. Returning existing project and deployment: ${existingProject.id}, ${latestDep.id}`);
+        return NextResponse.json({
+          projectId: existingProject.id,
+          deployment: {
+            id: latestDep.id,
+            projectId: latestDep.projectId,
+            status: latestDep.status,
+            branch: latestDep.branch,
+            commit: {
+              message: latestDep.commitMessage || "Manual Deploy",
+              hash: latestDep.commitHash || "",
+              author: latestDep.commitAuthor || "System",
+            },
+            latency: latestDep.latency,
+            region: latestDep.region,
+            createdAt: latestDep.createdAt ? new Date(latestDep.createdAt).toISOString() : new Date().toISOString(),
+            updatedAt: latestDep.updatedAt ? new Date(latestDep.updatedAt).toISOString() : new Date().toISOString(),
+          },
+          alreadyDeployed: true
+        });
+      }
+    }
 
     let resolvedBuildCommand = buildCommand;
     let resolvedOutputDirectory = outputDirectory;
@@ -153,11 +176,12 @@ export async function POST(req: NextRequest) {
         id: projectId,
         name: repoName,
         framework,
-        repository: repoSlug,
+        repository: stringifiedRepoId || fullRepoPath,
         branch: targetBranch,
         buildCommand: resolvedBuildCommand,
         outputDirectory: resolvedOutputDirectory,
         installCommand: resolvedInstallCommand,
+        userId: userId,
       });
 
       targetProjectId = newProj.id;
@@ -166,8 +190,8 @@ export async function POST(req: NextRequest) {
       targetProjectId = existingProject.id;
 
       // Fallback to existing configurations if not provided in request
-      resolvedBuildCommand = resolvedBuildCommand || existingProject.buildCommand || "next build";
-      resolvedOutputDirectory = resolvedOutputDirectory || existingProject.outputDirectory || ".next";
+      resolvedBuildCommand = resolvedBuildCommand || existingProject.buildCommand || "npm run build";
+      resolvedOutputDirectory = resolvedOutputDirectory || existingProject.outputDirectory || "dist";
       resolvedInstallCommand = resolvedInstallCommand || existingProject.installCommand || "npm install";
 
       // Update changed configurations
@@ -209,22 +233,20 @@ export async function POST(req: NextRequest) {
           projectId: targetProjectId,
           projectName: repoName,
           deploymentId: deploymentId,
-          deployment: {
-            id: deploymentId,
-            projectId: targetProjectId,
-            status: "queued",
-            branch: targetBranch,
-            commit: {
-              message: deployment.commitMessage || "Manual Deploy",
-              hash: deployment.commitHash || "",
-              author: deployment.commitAuthor || "System",
+            deployment: {
+              id: deploymentId,
+              projectId: targetProjectId,
+              status: "queued",
+              branch: targetBranch,
+              commit: {
+                message: deployment.commitMessage || "Manual Deploy",
+                hash: deployment.commitHash || "",
+                author: deployment.commitAuthor || "System",
+              },
+              createdAt: deployment.createdAt ? new Date(deployment.createdAt).toISOString() : new Date().toISOString(),
+              updatedAt: deployment.updatedAt ? new Date(deployment.updatedAt).toISOString() : new Date().toISOString(),
+              framework: existingProject?.framework || (existingProject ? existingProject.framework : "vite"),
             },
-            latency: "0ms",
-            region: "iad1 (US East)",
-            createdAt: deployment.createdAt ? new Date(deployment.createdAt).toISOString() : new Date().toISOString(),
-            updatedAt: deployment.updatedAt ? new Date(deployment.updatedAt).toISOString() : new Date().toISOString(),
-            framework: existingProject?.framework || (existingProject ? existingProject.framework : "nextjs"),
-          },
         })
       );
     } catch (redisErr: any) {
@@ -255,13 +277,18 @@ export async function POST(req: NextRequest) {
         }))
       : [];
 
+    // Inject token to allow cloning private repositories if using https://github.com/
+    const authenticatedGithubUrl = token && githubUrl.startsWith("https://github.com/")
+      ? githubUrl.replace("https://github.com/", `https://x-access-token:${token}@github.com/`)
+      : githubUrl;
+
     // Trigger external build task (AWS Fargate)
     console.info(`[Deploy API] Triggering build task on ECS for: ${repoSlug}`);
     const buildRes = await buildProject(
       {
         projectId: targetProjectId,
         rootDir: rootDir || "./",
-        githubUrl,
+        githubUrl: authenticatedGithubUrl,
         buildCommand: resolvedBuildCommand,
         outputDirectory: resolvedOutputDirectory,
         installCommand: resolvedInstallCommand,

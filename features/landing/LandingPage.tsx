@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useLandingPage, FeatureTab } from '../context/landing-page-context';
+import { useLandingPage, FeatureTab } from './landing-page-context';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   Github, 
@@ -28,12 +28,12 @@ import {
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { InteractiveGlobe } from './InteractiveGlobe';
-import { AnimatedGridPattern } from '../magicui/animated-grid-pattern';
-import { AnimatedShinyText } from '../magicui/animated-shiny-text';
-import { AnimatedBeam } from '../magicui/animated-beam';
-import { BorderBeam } from '../magicui/border-beam';
-import { NumberTicker } from '../magicui/number-ticker';
-import { BlurFade } from '../magicui/blur-fade';
+import { AnimatedGridPattern } from '../../components/magicui/animated-grid-pattern';
+import { AnimatedShinyText } from '../../components/magicui/animated-shiny-text';
+import { AnimatedBeam } from '../../components/magicui/animated-beam';
+import { BorderBeam } from '../../components/magicui/border-beam';
+import { NumberTicker } from '../../components/magicui/number-ticker';
+import { BlurFade } from '../../components/magicui/blur-fade';
 
 // Mock GitHub repositories
 const MOCK_REPOS = [

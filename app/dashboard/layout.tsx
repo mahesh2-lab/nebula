@@ -5,6 +5,8 @@ import { SidebarLayout } from '@/components/layouts/sidebar-layout';
 import { useRouter, usePathname } from 'next/navigation';
 import { useStore } from '@/store/store';
 
+export const dynamic = 'force-dynamic';
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();

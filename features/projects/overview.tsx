@@ -68,9 +68,9 @@ export function Overview({ project, onTabChange }: { project: Project; onTabChan
             <span className="text-xs px-1.5 py-0.5 border border-[#1f1f1f] bg-[#09090B] text-[#A1A1AA] font-mono rounded-sm">production</span>
           </div>
           <h2 className="text-sm font-semibold text-[#FAFAFA] flex items-center gap-2">
-            {project.name}.{process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}
+            {project.id}.{process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}
             <a 
-              href={`https://${project.name}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`} 
+              href={`http://${project.id}.${process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev'}`} 
               target="_blank" 
               className="text-[#71717A] hover:text-[#FAFAFA] transition-colors"
             >
@@ -84,7 +84,7 @@ export function Overview({ project, onTabChange }: { project: Project; onTabChan
             </span>
             <span className="flex items-center gap-1 font-mono">
               <GitCommit className="h-3 w-3 text-[#71717A]" />
-              {project.lastCommit.hash} - {project.lastCommit.message}
+              {(project.lastCommit.hash || '').substring(0, 7)} - {project.lastCommit.message}
             </span>
           </div>
         </div>

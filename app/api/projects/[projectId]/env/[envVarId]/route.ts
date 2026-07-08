@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { updateEnvVar, deleteEnvVar } from "@/lib/db/queries";
+import { updateEnvVar, deleteEnvVar, getProjectById } from "@/lib/db/queries";
 
 export async function PATCH(
   req: NextRequest,
@@ -14,6 +14,11 @@ export async function PATCH(
 
   try {
     const { projectId, envVarId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const body = await req.json();
     const updated = await updateEnvVar(projectId, envVarId, body);
     if (!updated) {
@@ -36,6 +41,11 @@ export async function DELETE(
 
   try {
     const { projectId, envVarId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const deleted = await deleteEnvVar(projectId, envVarId);
     if (!deleted) {
       return NextResponse.json({ error: "Secret not found" }, { status: 404 });

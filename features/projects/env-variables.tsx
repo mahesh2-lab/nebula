@@ -14,6 +14,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EnvSkeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableRow, 
+  TableHead, 
+  TableCell 
+} from '@/components/ui/table';
 
 export function EnvVariables({ project }: { project: Project }) {
   const addEnvVar = useStore((s) => s.addEnvVar);
@@ -91,7 +101,7 @@ export function EnvVariables({ project }: { project: Project }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">KEY</label>
-              <input
+              <Input
                 type="text"
                 placeholder="DATABASE_PASSWORD"
                 value={newKey}
@@ -103,7 +113,7 @@ export function EnvVariables({ project }: { project: Project }) {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider">VALUE</label>
-              <input
+              <Input
                 type="password"
                 placeholder="••••••••••••"
                 value={newValue}
@@ -119,9 +129,10 @@ export function EnvVariables({ project }: { project: Project }) {
               <label className="text-[10px] font-semibold text-[#71717A] tracking-wider block">ENVIRONMENTS</label>
               <div className="flex flex-wrap gap-2">
                 {['production', 'preview', 'development'].map((env) => (
-                  <button
+                  <Button
                     key={env}
                     type="button"
+                    variant="ghost"
                     onClick={() => toggleEnvSelection(env)}
                     className={`px-3 py-1 border text-[10px] font-mono rounded-md transition-colors cursor-pointer ${
                       selectedEnvs.includes(env)
@@ -130,18 +141,18 @@ export function EnvVariables({ project }: { project: Project }) {
                     }`}
                   >
                     {env.toUpperCase()}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               className="flex h-10 items-center justify-center gap-1.5 px-4 bg-white text-black hover:bg-zinc-200 text-xs font-bold rounded-md transition-colors cursor-pointer shrink-0"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Add Variable</span>
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -158,27 +169,27 @@ export function EnvVariables({ project }: { project: Project }) {
           </div>
         ) : (
           <div className="border border-[#1f1f1f] bg-black/40 rounded-md overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#1f1f1f] bg-black/60 text-[10px] font-mono text-[#71717A] uppercase">
-                  <th className="p-3">Key</th>
-                  <th className="p-3">Value</th>
-                  <th className="p-3">Environments</th>
-                  <th className="p-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#1f1f1f] text-xs font-mono">
+            <Table className="w-full text-left border-collapse">
+              <TableHeader>
+                <TableRow className="border-b border-[#1f1f1f] bg-black/60 text-[10px] font-mono text-[#71717A] uppercase">
+                  <TableHead className="p-3">Key</TableHead>
+                  <TableHead className="p-3">Value</TableHead>
+                  <TableHead className="p-3">Environments</TableHead>
+                  <TableHead className="p-3 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-[#1f1f1f] text-xs font-mono">
                 {project.env.map((ev) => (
-                  <tr key={ev.id} className="hover:bg-[#111113] transition-colors">
-                    <td className="p-3 font-semibold text-white">{ev.key}</td>
-                    <td className="p-3">
+                  <TableRow key={ev.id} className="hover:bg-[#111113] transition-colors">
+                    <TableCell className="p-3 font-semibold text-white">{ev.key}</TableCell>
+                    <TableCell className="p-3">
                       <div className="flex items-center gap-2">
                         <span className="text-[#A1A1AA]">
                           {revealed[ev.id] ? ev.value : '••••••••••••'}
                         </span>
                       </div>
-                    </td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell className="p-3">
                       <div className="flex gap-1.5">
                         {ev.env.map((e) => (
                           <span 
@@ -189,36 +200,39 @@ export function EnvVariables({ project }: { project: Project }) {
                           </span>
                         ))}
                       </div>
-                    </td>
-                    <td className="p-3 text-right">
+                    </TableCell>
+                    <TableCell className="p-3 text-right">
                       <div className="inline-flex gap-1.5">
-                        <button
+                        <Button
+                          variant="ghost"
                           onClick={() => handleToggleReveal(ev.id)}
                           className="p-2 border border-[#1f1f1f] bg-black text-[#A1A1AA] hover:text-[#FAFAFA] rounded-md cursor-pointer"
                           title="Reveal secret"
                         >
                           {revealed[ev.id] ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
                           onClick={() => handleCopy(ev.id, ev.value)}
                           className="p-2 border border-[#1f1f1f] bg-black text-[#A1A1AA] hover:text-[#FAFAFA] rounded-md cursor-pointer"
                           title="Copy secret"
                         >
                           {copiedId === ev.id ? <Check className="h-3.5 w-3.5 text-green-400" /> : <Copy className="h-3.5 w-3.5" />}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
+                          variant="ghost"
                           onClick={() => handleDelete(ev.id, ev.key)}
                           className="p-2 border border-[#1f1f1f] bg-black text-[#A1A1AA] hover:text-red-500 rounded-md cursor-pointer"
                           title="Delete secret"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>

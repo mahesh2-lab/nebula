@@ -4,6 +4,8 @@ import * as React from 'react';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, Terminal, Key, Shield } from 'lucide-react';
 
+export const dynamic = 'force-static';
+
 export default function DocsPage() {
   return (
     <div className="space-y-8 font-sans">

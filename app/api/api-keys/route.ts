@@ -10,7 +10,8 @@ export async function GET() {
   }
 
   try {
-    const list = await getApiKeys();
+    const userId = (session.user as any)?.id;
+    const list = await getApiKeys(userId);
     return NextResponse.json(list);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing key name" }, { status: 400 });
     }
 
+    const userId = (session.user as any)?.id;
     const randomHash = Math.random().toString(16).substring(2, 14);
     const newToken = `neb_live_${randomHash}01a2b3c4d5e`;
 
@@ -39,7 +41,7 @@ export async function POST(req: NextRequest) {
       token: newToken,
       prefix: `neb_live_${randomHash.substring(0, 4)}...`,
       scope: body.scope || 'Read',
-      userId: '1' // mock admin or linked user id
+      userId: userId || '1'
     });
 
     return NextResponse.json(newKey, { status: 201 });
@@ -47,3 +49,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+

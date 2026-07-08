@@ -22,6 +22,7 @@ export const projects = pgTable('projects', {
   buildCommand: text('build_command'),
   outputDirectory: text('output_directory'),
   installCommand: text('install_command'),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull()
 });
@@ -77,7 +78,11 @@ export const apiKeys = pgTable('api_keys', {
 });
 
 // Relations definitions (Optional but very helpful for Drizzle queries)
-export const projectsRelations = relations(projects, ({ many }) => ({
+export const projectsRelations = relations(projects, ({ one, many }) => ({
+  user: one(users, {
+    fields: [projects.userId],
+    references: [users.id]
+  }),
   deployments: many(deployments),
   envVariables: many(envVariables),
   domains: many(domains)

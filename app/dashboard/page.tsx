@@ -235,8 +235,15 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <div className="border border-[#1f1f1f] p-8 text-center text-xs font-mono text-[#71717A] rounded-md">
-          No projects found.
+        <div className="border border-[#1f1f1f] bg-[#111113] p-12 text-center text-xs font-mono text-[#71717A] rounded-md flex flex-col items-center justify-center space-y-4">
+          <p className="text-sm text-zinc-200">Your dashboard is looking dangerously empty. No containers? No builds? No logs?</p>
+          <p className="text-zinc-500 max-w-md">Our servers are getting bored and might start mining crypto or plotting world domination if you don't feed them some code soon.</p>
+          <button
+            onClick={() => router.push('/new')}
+            className="mt-2 px-4 py-2 border border-zinc-700 bg-zinc-900 hover:bg-white hover:text-black hover:border-white text-zinc-300 rounded-sm font-bold cursor-pointer transition-all duration-200"
+          >
+            Deploy Your First Project (Before the Servers Revolt)
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

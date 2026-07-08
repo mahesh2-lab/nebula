@@ -14,7 +14,8 @@ export async function GET(
 
   try {
     const { projectId } = await params;
-    const project = await getProjectById(projectId);
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
@@ -35,6 +36,11 @@ export async function PATCH(
 
   try {
     const { projectId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const body = await req.json();
     const updated = await updateProject(projectId, body);
     if (!updated) {
@@ -57,6 +63,11 @@ export async function DELETE(
 
   try {
     const { projectId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const deleted = await deleteProject(projectId);
     if (!deleted) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });

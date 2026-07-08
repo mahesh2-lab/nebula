@@ -33,6 +33,10 @@ export const buildProject = async (projectConfig: ProjectConfig, ecsEnv: { name:
         const env = [
             ...ecsEnv,
             {
+                name: "STATUS_WEBHOOK_SECRET",
+                value: process.env.STATUS_WEBHOOK_SECRET || "fallback_default_secret_for_dev_only"
+            },
+            {
                 name: "BUILD_PROJECT_ID",
                 value: projectConfig.projectId
             },

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Check, Info, CloudLightning } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-static';
+
 export default function PricingPage() {
   const router = useRouter();
   const [billingPeriod, setBillingPeriod] = React.useState<'monthly' | 'annually'>('monthly');

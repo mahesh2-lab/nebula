@@ -79,7 +79,7 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
   const isDeploying = deployState.step !== 'ready' && deployState.step !== 'failed';
 
   const deployDomain = process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev';
-  const isLocalhost = deployDomain.includes('localhost');
+  const isLocalhost = deployDomain.includes('localhost') || deployDomain.includes('hostmyidea.me');
   const protocol = isLocalhost ? 'http' : 'https';
 
   // Resolve the deployment across all projects
@@ -304,7 +304,7 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
     <div className="space-y-6">
 
       {/* Sub-tab nav + Back button */}
-      <div className="border-b border-[#1f1f1f] bg-[#09090B] flex items-center justify-between px-6 pt-1">
+      <div className="border-b border-border bg-surface flex items-center justify-between px-6 pt-1">
         <div className="flex gap-1">
           {['Deployment', 'Logs', 'Source', 'Open Graph'].map((label) => {
             const id = label.toLowerCase().replace(' ', '');
@@ -314,8 +314,8 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
                 onClick={() => { setActiveSubTab(id); if (id === 'logs') setExpandedSection('logs'); }}
                 className={`px-3 py-1.5 text-xs font-mono border-b-2 transition-all cursor-pointer ${
                   activeSubTab === id
-                    ? 'border-white text-white font-semibold'
-                    : 'border-transparent text-[#71717A] hover:text-[#FAFAFA]'
+                    ? 'border-foreground text-foreground font-semibold'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {label}
@@ -325,7 +325,7 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         </div>
         <button
           onClick={() => router.push(backHref)}
-          className="text-xs text-[#71717A] hover:text-white font-mono flex items-center gap-1.5 py-1.5 cursor-pointer"
+          className="text-xs text-muted-foreground hover:text-foreground font-mono flex items-center gap-1.5 py-1.5 cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Deployments
@@ -338,13 +338,13 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FrameworkIcon framework={currentProject.framework} />
-            <h2 className="text-sm font-semibold text-[#FAFAFA] font-mono">
+            <h2 className="text-sm font-semibold text-foreground font-mono">
               {currentProject.name} / Deployment Details
             </h2>
           </div>
           <button
             onClick={() => toast.success('Share link generated')}
-            className="flex h-7 items-center gap-1.5 border border-[#1f1f1f] hover:bg-[#111113] px-3 text-[11px] font-mono text-[#A1A1AA] hover:text-white rounded-sm transition-colors cursor-pointer"
+            className="flex h-7 items-center gap-1.5 border border-border hover:bg-accent px-3 text-[11px] font-mono text-muted-foreground hover:text-foreground rounded-sm transition-colors cursor-pointer"
           >
             <Share2 className="h-3 w-3" /><span>Share</span>
           </button>
@@ -353,18 +353,18 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         {/* Detail panel */}
         {activeSubTab === 'deployment' && (
           <>
-            <div className="border border-[#1f1f1f] bg-[#111113] p-4 rounded-md grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="border border-border bg-surface p-4 rounded-md grid grid-cols-1 lg:grid-cols-3 gap-6">
 
               {/* Left: real iframe browser preview */}
-              <div className="lg:col-span-1 border border-[#1f1f1f] bg-[#09090B] rounded-sm h-[180px] flex flex-col relative overflow-hidden group select-none">
+              <div className="lg:col-span-1 border border-border bg-background rounded-sm h-[180px] flex flex-col relative overflow-hidden group select-none">
                 {/* Browser Top Bar */}
-                <div className="flex justify-between items-center px-3 py-1.5 border-b border-[#1f1f1f] bg-[#111113]/80 h-8 shrink-0">
+                <div className="flex justify-between items-center px-3 py-1.5 border-b border-border bg-surface h-8 shrink-0">
                   <div className="flex gap-1 s-hrink-0">
                     <span className="h-1.5 w-1.5 bg-[#EF4444] rounded-full" />
                     <span className="h-1.5 w-1.5 bg-[#F59E0B] rounded-full" />
                     <span className="h-1.5 w-1.5 bg-[#22C55E] rounded-full" />
                   </div>
-                  <span className="text-[8px] font-mono text-[#71717A] truncate max-w-[120px]">
+                  <span className="text-[8px] font-mono text-muted-foreground truncate max-w-[120px]">
                     {currentProject.name}.{deployDomain}
                   </span>
                   <div className="w-3" />
@@ -409,18 +409,18 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
               <div className="lg:col-span-2 grid grid-cols-2 gap-4 text-xs font-mono">
 
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Created</span>
-                  <div className="flex items-center gap-1.5 text-zinc-300">
-                    <span className="h-4 w-4 rounded-full bg-[#1f1f1f] flex items-center justify-center text-[8px] font-bold text-white">
+                  <span className="text-[10px] text-muted-foreground block">Created</span>
+                  <div className="flex items-center gap-1.5 text-foreground">
+                    <span className="h-4 w-4 rounded-full bg-border flex items-center justify-center text-[8px] font-bold text-foreground">
                       {authorInitials}
                     </span>
                     <span>{authorName}</span>
-                    <span className="text-[#71717A]">{formattedCreated}</span>
+                    <span className="text-muted-foreground">{formattedCreated}</span>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Status</span>
+                  <span className="text-[10px] text-muted-foreground block">Status</span>
                   <div className="flex items-center gap-1.5">
                     {deploymentStatus === 'queued' && (
                       <>
@@ -451,44 +451,44 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Duration</span>
-                  <div className="flex items-center gap-1.5 text-zinc-300">
-                    <Clock className="h-3.5 w-3.5 text-[#71717A]" />
+                  <span className="text-[10px] text-muted-foreground block">Duration</span>
+                  <div className="flex items-center gap-1.5 text-foreground">
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{durationStr}</span>
-                    {timeAgoStr && <span className="text-[#71717A]">{timeAgoStr}</span>}
+                    {timeAgoStr && <span className="text-muted-foreground">{timeAgoStr}</span>}
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Environment</span>
-                  <div className="flex items-center gap-1.5 text-zinc-300">
-                    <Globe className="h-3.5 w-3.5 text-[#71717A]" />
+                  <span className="text-[10px] text-muted-foreground block">Environment</span>
+                  <div className="flex items-center gap-1.5 text-foreground">
+                    <Globe className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>Production</span>
                   </div>
                 </div>
 
-                <div className="col-span-2 space-y-1 border-t border-[#1f1f1f]/50 pt-2">
-                  <span className="text-[10px] text-[#71717A] block">Domains</span>
-                  <div className="flex items-center gap-2 text-[#FAFAFA]">
+                <div className="col-span-2 space-y-1 border-t border-border pt-2">
+                  <span className="text-[10px] text-muted-foreground block">Domains</span>
+                  <div className="flex items-center gap-2 text-foreground">
                     <a href={`${protocol}://${currentProject.id}.${deployDomain}`} target="_blank" className="hover:underline flex items-center gap-1">
-                      {currentProject.id}.{deployDomain} <ExternalLink className="h-3 w-3 text-[#71717A]" />
+                      {currentProject.id}.{deployDomain} <ExternalLink className="h-3 w-3 text-muted-foreground" />
                     </a>
-                    <span className="text-[9px] font-mono border border-[#1f1f1f] px-1 bg-[#09090B] text-[#71717A] rounded-sm">+2</span>
+                    <span className="text-[9px] font-mono border border-border px-1 bg-surface text-muted-foreground rounded-sm">+2</span>
                   </div>
-                  <p className="text-[10px] text-[#71717A]">{currentProject.name}-git-main.nebula.app</p>
+                  <p className="text-[10px] text-muted-foreground">{currentProject.name}-git-main.nebula.app</p>
                 </div>
 
-                <div className="col-span-2 space-y-1 border-t border-[#1f1f1f]/50 pt-2">
-                  <span className="text-[10px] text-[#71717A] block">Source</span>
-                  <div className="flex items-center gap-2 text-zinc-300">
+                <div className="col-span-2 space-y-1 border-t border-border pt-2">
+                  <span className="text-[10px] text-muted-foreground block">Source</span>
+                  <div className="flex items-center gap-2 text-foreground">
                     <span className="flex items-center gap-0.5">
-                      <GitBranch className="h-3.5 w-3.5 text-[#71717A]" />
+                      <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
                       {targetDeployment.branch}
                     </span>
-                    <span className="text-[#71717A]">•</span>
+                    <span className="text-muted-foreground">•</span>
                     <span className="flex items-center gap-1 truncate max-w-[300px]">
-                      <GitCommit className="h-3.5 w-3.5 text-[#71717A]" />
-                      <span className="font-semibold text-white">{targetDeployment.commit.hash.substring(0, 7)}</span>
+                      <GitCommit className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">{targetDeployment.commit.hash.substring(0, 7)}</span>
                       <span>{targetDeployment.commit.message}</span>
                     </span>
                   </div>
@@ -498,14 +498,14 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
             </div>
 
             {/* Accordion sections */}
-            <div className="border border-[#1f1f1f] bg-[#111113] rounded-md divide-y divide-[#1f1f1f] overflow-hidden">
+            <div className="border border-border bg-surface rounded-md divide-y divide-border overflow-hidden">
 
               <div>
                 <button
                   onClick={() => toggleSection('settings')}
-                  className="flex items-center justify-between w-full px-4 py-3 font-mono hover:bg-[#18181B] transition-colors cursor-pointer"
+                  className="flex items-center justify-between w-full px-4 py-3 font-mono hover:bg-accent transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                     {expandedSection === 'settings' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     <span>Deployment Settings</span>
                     <span className="text-[9px] bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 px-1 rounded-sm font-semibold">
@@ -514,7 +514,7 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
                   </div>
                 </button>
                 {expandedSection === 'settings' && (
-                  <div className="p-4 bg-[#09090B]/40 text-xs font-mono text-[#A1A1AA] space-y-2">
+                  <div className="p-4 bg-surface text-xs font-mono text-muted-foreground space-y-2">
                     <p>• Enable Node.js version 22 execution framework (Recommended)</p>
                     <p>• Upgrade memory limit preset size to 1024MB (Recommended)</p>
                     <p>• Implement lazy route chunk compilation (Recommended)</p>
@@ -525,36 +525,36 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
               <div>
                 <button
                   onClick={() => toggleSection('logs')}
-                  className="flex items-center justify-between w-full px-4 py-3 font-mono hover:bg-[#18181B] transition-colors cursor-pointer"
+                  className="flex items-center justify-between w-full px-4 py-3 font-mono hover:bg-accent transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                     {expandedSection === 'logs' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                     <span>Build Logs</span>
                   </div>
                 </button>
                 {expandedSection === 'logs' && (
-                  <div className="p-4 bg-[#09090B]/40 space-y-3 border-t border-[#1f1f1f]">
+                  <div className="p-4 bg-surface space-y-3 border-t border-border">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-[#71717A] font-mono">Live compilation terminal</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">Live compilation terminal</span>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => setFollow(!follow)}
-                          className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${follow ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]' : 'border-[#1f1f1f] text-[#71717A]'}`}
+                          className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${follow ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]' : 'border-border text-muted-foreground'}`}
                         >Follow</button>
                         <button
                           onClick={() => setWordWrap(!wordWrap)}
-                          className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${wordWrap ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-[#1f1f1f] text-[#71717A]'}`}
+                          className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${wordWrap ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-border text-muted-foreground'}`}
                         >Wrap</button>
                       </div>
                     </div>
-                    <div className="h-80 w-full rounded border border-[#1f1f1f] overflow-hidden text-xs">
+                    <div className="h-80 w-full rounded border border-border overflow-hidden text-xs">
                       <LazyLog text={logsText} stream follow={follow} wordWrap={wordWrap} extraLines={1} style={{ background: '#09090B', color: '#e4e4e7' }} />
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={handleCopyLogs} className="flex h-7 items-center gap-1 border border-[#1f1f1f] hover:bg-[#18181B] px-3 text-[10px] font-mono text-zinc-300 rounded-sm cursor-pointer">
+                      <button onClick={handleCopyLogs} className="flex h-7 items-center gap-1 border border-border hover:bg-accent px-3 text-[10px] font-mono text-foreground rounded-sm cursor-pointer">
                         <Copy className="h-3 w-3" /><span>Copy Logs</span>
                       </button>
-                      <button onClick={handleDownloadLogs} className="flex h-7 items-center gap-1 border border-[#1f1f1f] hover:bg-[#18181B] px-3 text-[10px] font-mono text-zinc-300 rounded-sm cursor-pointer">
+                      <button onClick={handleDownloadLogs} className="flex h-7 items-center gap-1 border border-border hover:bg-accent px-3 text-[10px] font-mono text-foreground rounded-sm cursor-pointer">
                         <Download className="h-3 w-3" /><span>Download Logs</span>
                       </button>
                     </div>
@@ -567,28 +567,28 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         )}
 
         {activeSubTab === 'logs' && (
-          <div className="border border-[#1f1f1f] bg-[#111113] p-4 rounded-md space-y-3">
+          <div className="border border-border bg-surface p-4 rounded-md space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-[#71717A] font-mono">Live compilation terminal</span>
+              <span className="text-[10px] text-muted-foreground font-mono">Live compilation terminal</span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setFollow(!follow)}
-                  className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${follow ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]' : 'border-[#1f1f1f] text-[#71717A]'}`}
+                  className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${follow ? 'bg-[#22C55E]/10 border-[#22C55E]/30 text-[#22C55E]' : 'border-border text-muted-foreground'}`}
                 >Follow</button>
                 <button
                   onClick={() => setWordWrap(!wordWrap)}
-                  className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${wordWrap ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-[#1f1f1f] text-[#71717A]'}`}
+                  className={`px-2 py-0.5 border rounded-sm text-[10px] font-mono cursor-pointer transition-colors ${wordWrap ? 'bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]' : 'border-border text-muted-foreground'}`}
                 >Wrap</button>
               </div>
             </div>
-            <div className="h-[450px] w-full rounded border border-[#1f1f1f] overflow-hidden text-xs">
+            <div className="h-[450px] w-full rounded border border-border overflow-hidden text-xs">
               <LazyLog text={logsText} stream follow={follow} wordWrap={wordWrap} extraLines={1} style={{ background: '#09090B', color: '#e4e4e7' }} />
             </div>
             <div className="flex gap-2">
-              <button onClick={handleCopyLogs} className="flex h-7 items-center gap-1 border border-[#1f1f1f] hover:bg-[#18181B] px-3 text-[10px] font-mono text-zinc-300 rounded-sm cursor-pointer">
+              <button onClick={handleCopyLogs} className="flex h-7 items-center gap-1 border border-border hover:bg-accent px-3 text-[10px] font-mono text-foreground rounded-sm cursor-pointer">
                 <Copy className="h-3 w-3" /><span>Copy Logs</span>
               </button>
-              <button onClick={handleDownloadLogs} className="flex h-7 items-center gap-1 border border-[#1f1f1f] hover:bg-[#18181B] px-3 text-[10px] font-mono text-zinc-300 rounded-sm cursor-pointer">
+              <button onClick={handleDownloadLogs} className="flex h-7 items-center gap-1 border border-border hover:bg-accent px-3 text-[10px] font-mono text-foreground rounded-sm cursor-pointer">
                 <Download className="h-3 w-3" /><span>Download Logs</span>
               </button>
             </div>
@@ -596,39 +596,39 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         )}
 
         {activeSubTab === 'source' && (
-          <div className="border border-[#1f1f1f] bg-[#111113] p-6 rounded-md space-y-6">
-            <h3 className="text-sm font-semibold text-[#FAFAFA] font-mono border-b border-[#1f1f1f] pb-2">Commit Information</h3>
+          <div className="border border-border bg-surface p-6 rounded-md space-y-6">
+            <h3 className="text-sm font-semibold text-foreground font-mono border-b border-border pb-2">Commit Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Repository</span>
-                  <span className="text-zinc-300 font-semibold">{currentProject.name}</span>
+                  <span className="text-[10px] text-muted-foreground block">Repository</span>
+                  <span className="text-foreground font-semibold">{currentProject.name}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Branch</span>
-                  <span className="text-zinc-300 flex items-center gap-1">
-                    <GitBranch className="h-3.5 w-3.5 text-[#71717A]" />
+                  <span className="text-[10px] text-muted-foreground block">Branch</span>
+                  <span className="text-foreground flex items-center gap-1">
+                    <GitBranch className="h-3.5 w-3.5 text-muted-foreground" />
                     {targetDeployment.branch}
                   </span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Commit</span>
-                  <span className="text-zinc-300 flex items-center gap-1">
-                    <GitCommit className="h-3.5 w-3.5 text-[#71717A]" />
-                    <span className="font-semibold text-white">{targetDeployment.commit.hash}</span>
+                  <span className="text-[10px] text-muted-foreground block">Commit</span>
+                  <span className="text-foreground flex items-center gap-1">
+                    <GitCommit className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="font-semibold text-foreground">{(targetDeployment.commit.hash || '').substring(0, 7)}</span>
                   </span>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Author</span>
-                  <div className="flex items-center gap-1.5 text-zinc-300">
+                  <span className="text-[10px] text-muted-foreground block">Author</span>
+                  <div className="flex items-center gap-1.5 text-foreground">
                     <span>{targetDeployment.commit.author}</span>
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[10px] text-[#71717A] block">Commit Message</span>
-                  <span className="text-zinc-300 block bg-[#09090B] p-2 border border-[#1f1f1f] rounded-sm max-w-lg">
+                  <span className="text-[10px] text-muted-foreground block">Commit Message</span>
+                  <span className="text-foreground block bg-background p-2 border border-border rounded-sm max-w-lg">
                     {targetDeployment.commit.message}
                   </span>
                 </div>
@@ -638,26 +638,26 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
         )}
 
         {activeSubTab === 'opengraph' && (
-          <div className="border border-[#1f1f1f] bg-[#111113] p-6 rounded-md space-y-6">
-            <h3 className="text-sm font-semibold text-[#FAFAFA] font-mono border-b border-[#1f1f1f] pb-2">Open Graph Preview</h3>
-            <div className="max-w-md border border-[#1f1f1f] bg-[#09090B] rounded-md overflow-hidden shadow-lg select-none">
+          <div className="border border-border bg-surface p-6 rounded-md space-y-6">
+            <h3 className="text-sm font-semibold text-foreground font-mono border-b border-border pb-2">Open Graph Preview</h3>
+            <div className="max-w-md border border-border bg-background rounded-md overflow-hidden shadow-lg select-none">
               {/* Mock OG Image Card */}
-              <div className="h-48 bg-gradient-to-tr from-[#111113] via-[#1a1a1f] to-[#27272a] flex flex-col items-center justify-center p-6 relative">
-                <div className="absolute top-3 left-3 bg-[#09090B]/60 border border-[#1f1f1f] px-2 py-0.5 rounded-sm text-[8px] font-mono text-zinc-400">
+              <div className="h-48 bg-gradient-to-tr from-surface via-surface-hover to-border flex flex-col items-center justify-center p-6 relative">
+                <div className="absolute top-3 left-3 bg-surface border border-border px-2 py-0.5 rounded-sm text-[8px] font-mono text-muted-foreground">
                   NEBULA PREVIEW
                 </div>
                 <FrameworkIcon framework={currentProject.framework} />
-                <h4 className="text-sm font-bold text-white font-mono mt-3">{currentProject.name}</h4>
-                <p className="text-[9px] text-zinc-500 font-mono mt-1">deployed at {currentProject.name}.{deployDomain}</p>
+                <h4 className="text-sm font-bold text-foreground font-mono mt-3">{currentProject.name}</h4>
+                <p className="text-[9px] text-muted-foreground font-mono mt-1">deployed at {currentProject.name}.{deployDomain}</p>
               </div>
               {/* OG Metadata details */}
-              <div className="p-4 space-y-2 border-t border-[#1f1f1f] font-sans">
-                <p className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider">og:url</p>
+              <div className="p-4 space-y-2 border-t border-border font-sans">
+                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">og:url</p>
                 <p className="text-xs text-blue-400 font-medium truncate">{protocol}://${currentProject.name}.${deployDomain}</p>
-                <p className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider pt-1">og:title</p>
-                <p className="text-xs text-white font-semibold">{currentProject.name} - Production Deployment</p>
-                <p className="text-[10px] font-mono text-[#71717A] uppercase tracking-wider pt-1">og:description</p>
-                <p className="text-xs text-zinc-400">Successfully built and deployed on Nebula Edge Worker Network.</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider pt-1">og:title</p>
+                <p className="text-xs text-foreground font-semibold">{currentProject.name} - Production Deployment</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider pt-1">og:description</p>
+                <p className="text-xs text-muted-foreground">Successfully built and deployed on Nebula Edge Worker Network.</p>
               </div>
             </div>
           </div>

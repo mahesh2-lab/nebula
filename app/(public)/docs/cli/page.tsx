@@ -4,6 +4,8 @@ import * as React from 'react';
 import { CLI } from '@/features/projects/cli';
 import { BookOpen, Terminal } from 'lucide-react';
 
+export const dynamic = 'force-static';
+
 export default function DocsCliPage() {
   return (
     <div className="space-y-6">

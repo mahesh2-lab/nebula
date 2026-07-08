@@ -303,14 +303,14 @@ export default function TemplateCard({
         onKeyDown={(e) => e.key === "Enter" && onClick?.()}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative block w-full h-[160px] bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden no-underline text-inherit cursor-pointer transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.12)] hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black"
+        className="relative block w-full h-[160px] bg-card text-card-foreground border border-border rounded-xl overflow-hidden no-underline cursor-pointer transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.12)] hover:border-neutral-400 dark:hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-black"
         style={{
           transform: hovered ? "translateY(-3px) scale(1.01)" : "none",
         }}
       >
         <div className="flex flex-row h-full">
           {/* Left visual panel */}
-          <div className="w-40 shrink-0 bg-gradient-to-br from-[#090B14] via-[#0D1526] to-[#090B14] flex items-center justify-center relative">
+          <div className="w-40 shrink-0 bg-gradient-to-br from-neutral-100 via-neutral-200 to-neutral-100 dark:from-[#090B14] dark:via-[#0D1526] dark:to-[#090B14] flex items-center justify-center relative">
             <div
               className="text-4xl select-none transition-all duration-300"
               style={{
@@ -326,18 +326,18 @@ export default function TemplateCard({
           </div>
 
           {/* Right info panel */}
-          <div className="p-5 flex-1 flex flex-col justify-center border-l border-neutral-800 bg-[#111113]">
+          <div className="p-5 flex-1 flex flex-col justify-center border-l border-border bg-card">
             <div className="flex items-center gap-2">
-              <h3 className="m-0 text-sm font-bold text-neutral-100 transition-colors duration-200"
-                style={{ color: hovered ? "#818cf8" : "#fafafa" }}
-              >
+              <h3 className={`m-0 text-sm font-bold transition-colors duration-200 ${
+                hovered ? "text-indigo-600 dark:text-indigo-400" : "text-card-foreground"
+              }`}>
                 {title}
               </h3>
               <svg
                 viewBox="0 0 16 16"
                 height="12"
                 width="12"
-                className="flex-shrink-0 text-neutral-100 transition-all duration-200"
+                className="flex-shrink-0 text-card-foreground transition-all duration-200"
                 style={{
                   opacity: hovered ? 1 : 0,
                   transform: hovered
@@ -358,7 +358,7 @@ export default function TemplateCard({
             </div>
 
             <p
-              className="m-0 text-xs text-neutral-500 mt-1 leading-snug transition-all duration-200"
+              className="m-0 text-xs text-muted-foreground mt-1 leading-snug transition-all duration-200"
               style={{
                 display: hovered && funnyDesc ? "none" : "block",
               }}
@@ -367,7 +367,7 @@ export default function TemplateCard({
             </p>
             {funnyDesc && (
               <p
-                className="m-0 text-xs text-neutral-400 font-medium mt-1 italic leading-snug transition-all duration-200"
+                className="m-0 text-xs text-muted-foreground/85 font-medium mt-1 italic leading-snug transition-all duration-200"
                 style={{
                   display: hovered ? "block" : "none",
                 }}
@@ -407,7 +407,7 @@ export default function TemplateCard({
       onKeyDown={(e) => e.key === "Enter" && onClick?.()}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      className="relative block w-full h-52 bg-neutral-950 border border-neutral-800 rounded-xl overflow-hidden no-underline text-inherit cursor-pointer transition-all duration-300 hover:shadow-[0_0_24px_rgba(99,102,241,0.1)] hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-black"
+      className="relative block w-full h-52 bg-card text-card-foreground border border-border rounded-xl overflow-hidden no-underline cursor-pointer transition-all duration-300 hover:shadow-[0_0_24px_rgba(99,102,241,0.1)] hover:border-neutral-400 dark:hover:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-black"
       style={{
         transform: hovered ? "translateY(-4px) scale(1.02)" : "none",
       }}
@@ -415,16 +415,16 @@ export default function TemplateCard({
       {/* Text content */}
       <div className="flex flex-col gap-2 px-5 py-4">
         <div className="flex items-center max-w-max pr-2">
-          <h3 className="m-0 text-sm leading-none font-bold text-neutral-100 whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-200"
-            style={{ color: hovered ? "#60a5fa" : "#fafafa" }}
-          >
+          <h3 className={`m-0 text-sm leading-none font-bold whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-200 ${
+            hovered ? "text-blue-600 dark:text-blue-400" : "text-card-foreground"
+          }`}>
             {title}
           </h3>
           <svg
             viewBox="0 0 16 16"
             height="12"
             width="12"
-            className="ml-1.5 flex-shrink-0 text-neutral-100 transition-all duration-200"
+            className="ml-1.5 flex-shrink-0 text-card-foreground transition-all duration-200"
             style={{
               opacity: hovered ? 1 : 0,
               transform: hovered
@@ -445,7 +445,7 @@ export default function TemplateCard({
         </div>
 
         <p
-          className="m-0 max-w-[90%] text-xs leading-tight text-neutral-500 line-clamp-2 transition-all duration-200"
+          className="m-0 max-w-[90%] text-xs leading-tight text-muted-foreground line-clamp-2 transition-all duration-200"
           style={{
             display: hovered && funnyDesc ? "none" : "-webkit-box",
           }}
@@ -454,7 +454,7 @@ export default function TemplateCard({
         </p>
         {funnyDesc && (
           <p
-            className="m-0 max-w-[90%] text-[11px] leading-tight text-neutral-400 font-medium italic line-clamp-2 transition-all duration-200"
+            className="m-0 max-w-[90%] text-[11px] leading-tight text-muted-foreground/85 font-medium italic line-clamp-2 transition-all duration-200"
             style={{
               display: hovered ? "-webkit-box" : "none",
             }}
@@ -466,7 +466,7 @@ export default function TemplateCard({
 
       {/* Tilted thumbnail - variant-specific */}
       <div
-        className="absolute w-[105%] h-full rounded-lg overflow-hidden border border-neutral-800 shadow-[0_-6px_20px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out"
+        className="absolute w-[105%] h-full rounded-lg overflow-hidden border border-border shadow-[0_-6px_20px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out"
         style={{
           top: "55%",
           left: "12%",
@@ -481,7 +481,7 @@ export default function TemplateCard({
 
       {/* Deploy badge */}
       <div
-        className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded bg-black/70 border border-neutral-800 text-[9px] font-mono text-neutral-400 transition-opacity duration-200"
+        className="absolute bottom-2.5 left-3 px-2 py-0.5 rounded bg-white/95 dark:bg-black/70 border border-border text-[9px] font-mono text-muted-foreground transition-opacity duration-200"
         style={{ opacity: hovered ? 1 : 0 }}
       >
         Click to Deploy

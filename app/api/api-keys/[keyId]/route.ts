@@ -14,7 +14,8 @@ export async function DELETE(
 
   try {
     const { keyId } = await params;
-    const deleted = await revokeApiKey(keyId);
+    const userId = (session.user as any)?.id;
+    const deleted = await revokeApiKey(keyId, userId);
     if (!deleted) {
       return NextResponse.json({ error: "API Key not found" }, { status: 404 });
     }

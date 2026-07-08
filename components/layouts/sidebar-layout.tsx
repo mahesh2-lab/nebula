@@ -31,6 +31,16 @@ import { CommandMenu } from '../ui/command-menu';
 import { Toaster, toast } from 'sonner';
 import { signOut, useSession } from 'next-auth/react';
 import { AnimatedThemeToggler } from '../ui/animated-theme-toggler';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
 
 interface SidebarLayoutProps {
   children: React.ReactNode;
@@ -217,12 +227,13 @@ export function SidebarLayout({
                 <span className="text-[#FAFAFA]">Shift + D</span>
               </div>
             </div>
-            <button 
+            <Button 
+              variant="ghost"
               onClick={() => setShortcutOverlayOpen(false)}
               className="mt-6 w-full py-1.5 border border-[#1f1f1f] bg-[#09090B] text-xs font-medium hover:bg-[#111113] active:bg-[#18181B] rounded-sm transition-colors"
             >
               Dismiss
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -248,12 +259,13 @@ export function SidebarLayout({
               {sidebarCollapsed && (
                 <CloudLightning className="h-4 w-4 mx-auto text-white" />
               )}
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={toggleSidebar}
                 className="text-[#71717A] hover:text-[#FAFAFA] transition-colors p-1"
               >
                 {sidebarCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
-              </button>
+              </Button>
             </div>
 
             {/* Project Context Info Selector */}
@@ -264,12 +276,13 @@ export function SidebarLayout({
                     <p className="text-[9px] font-mono text-[#71717A] uppercase">Active Project</p>
                     <p className="text-xs font-semibold text-[#FAFAFA] truncate max-w-[100px]">{activeProject?.name}</p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
                     onClick={() => setActiveProjectId(null)}
                     className="text-[9px] font-mono px-1 py-0.5 border border-[#1f1f1f] bg-[#111113] hover:bg-[#18181B] text-[#A1A1AA] hover:text-[#FAFAFA] rounded-sm"
                   >
                     Exit
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -281,8 +294,9 @@ export function SidebarLayout({
                 const isSelected = activeTab === item.id;
                 
                 return (
-                  <button
+                  <Button
                     key={item.id}
+                    variant="ghost"
                     onClick={() => handleNavClick(item.id)}
                     className={`w-full flex items-center gap-2 px-2 py-1 text-left text-xs transition-colors rounded-sm ${
                       isSelected
@@ -295,7 +309,7 @@ export function SidebarLayout({
                     {!sidebarCollapsed && (
                       <span className="truncate flex-1">{item.label}</span>
                     )}
-                  </button>
+                  </Button>
                 );
               })}
             </nav>
@@ -361,89 +375,84 @@ export function SidebarLayout({
 
             <div className="flex items-center gap-2">
               {/* Global Search shortcut button */}
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={() => setSearchOpen(true)}
                 className="flex h-7 items-center gap-2 rounded border border-[#1f1f1f] bg-[#111113] px-2 text-[10px] font-mono text-[#71717A] hover:bg-[#18181B] hover:text-[#FAFAFA] transition-colors"
               >
                 <Search className="h-3 w-3" />
                 <span>Search...</span>
                 <kbd className="pointer-events-none text-[8px] font-mono bg-[#09090B] px-1 py-0.5 rounded border border-[#1f1f1f]">⌘K</kbd>
-              </button>
+              </Button>
 
               {/* Notification Bell */}
-              <button 
+              <Button 
+                variant="ghost"
                 onClick={() => toast.info('No new notification alerts.')}
                 className="p-1 border border-border bg-surface hover:bg-surface-hover rounded-sm text-muted-text hover:text-foreground transition-colors"
               >
                 <Bell className="h-3.5 w-3.5" />
-              </button>
+              </Button>
 
               {/* Theme Toggler */}
               <AnimatedThemeToggler />
 
               {/* Create/Import project option */}
-              <button
+              <Button
                 onClick={onCreateProjectClick}
-                className="flex h-7 items-center gap-1 bg-[#FAFAFA] dark:bg-white text-black dark:text-[#09090B] hover:bg-neutral-200 active:bg-neutral-300 px-2.5 text-[11px] font-bold rounded-sm transition-colors font-sans"
+                className="flex h-7 items-center gap-1 bg-foreground text-background hover:bg-foreground/90 active:bg-foreground/80 px-2.5 text-[11px] font-bold rounded-sm transition-colors font-sans"
               >
                 <Plus className="h-3 w-3" />
                 <span>Deploy Git Repo</span>
-              </button>
+              </Button>
 
               {/* User profile dropdown selector */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="h-7 w-7 rounded-full border border-[#1f1f1f] bg-[#09090B] hover:border-white transition-colors overflow-hidden flex items-center justify-center text-[10px] font-mono font-semibold text-white cursor-pointer"
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className="h-7 w-7 rounded-full border border-border bg-surface hover:border-foreground transition-colors overflow-hidden flex items-center justify-center text-[10px] font-mono font-semibold text-foreground cursor-pointer"
                 >
                   {user?.image ? (
                     <img src={user.image} alt={userName} className="h-full w-full object-cover" />
                   ) : (
                     <span>{userInitials}</span>
                   )}
-                </button>
-                {showProfileMenu && (
-                  <>
-                    <div className="fixed inset-0 z-30" onClick={() => setShowProfileMenu(false)} />
-                    <div className="absolute right-0 mt-2 w-52 border border-[#1f1f1f] bg-[#111113] p-2 text-xs font-mono text-[#FAFAFA] rounded-md shadow-2xl z-40 space-y-1">
-                      <div className="px-2.5 py-2 border-b border-[#1f1f1f]/70 text-[#71717A] text-[10px] leading-tight">
-                        <p className="font-semibold text-zinc-300">{userName}</p>
-                        <p className="truncate">{userEmail}</p>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setActiveTab('user-settings');
-                          setShowProfileMenu(false);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white"
-                      >
-                        Profile Settings
-                      </button>
-                      <button
-                        onClick={() => {
-                          setActiveTab('billing');
-                          setShowProfileMenu(false);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 hover:bg-[#18181B] rounded-sm text-zinc-300 hover:text-white"
-                      >
-                        Billing settings
-                      </button>
-                      <div className="h-[1px] bg-[#1f1f1f]" />
-                      <button
-                        onClick={async () => {
-                          useStore.getState().setIsAuthenticated(false);
-                          setShowProfileMenu(false);
-                          toast.info('Signed out of Nebula workspace');
-                          await signOut({ callbackUrl: '/login' });
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 hover:bg-red-500/10 hover:text-[#EF4444] rounded-sm text-[#EF4444]"
-                      >
-                        Sign Out
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52 border border-border bg-surface p-2 text-xs font-mono text-foreground rounded-md shadow-2xl space-y-1">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="px-2.5 py-2 border-b border-border text-muted-foreground text-[10px] leading-tight">
+                      <p className="font-semibold text-foreground">{userName}</p>
+                      <p className="truncate">{userEmail}</p>
+                    </DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setActiveTab('user-settings');
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 hover:bg-accent rounded-sm text-foreground cursor-pointer"
+                  >
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setActiveTab('billing');
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 hover:bg-accent rounded-sm text-foreground cursor-pointer"
+                  >
+                    Billing settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="h-[1px] bg-border" />
+                  <DropdownMenuItem
+                    onClick={async () => {
+                      useStore.getState().setIsAuthenticated(false);
+                      toast.info('Signed out of Nebula workspace');
+                      await signOut({ callbackUrl: '/login' });
+                    }}
+                    className="w-full text-left px-2.5 py-1.5 hover:bg-red-500/10 hover:text-[#EF4444] rounded-sm text-[#EF4444] cursor-pointer"
+                  >
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 

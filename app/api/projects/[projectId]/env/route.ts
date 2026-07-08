@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getEnvVars, createEnvVar } from "@/lib/db/queries";
+import { getEnvVars, createEnvVar, getProjectById } from "@/lib/db/queries";
 
 export async function GET(
   req: NextRequest,
@@ -14,6 +14,11 @@ export async function GET(
 
   try {
     const { projectId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const list = await getEnvVars(projectId);
     return NextResponse.json(list);
   } catch (err: any) {
@@ -32,6 +37,11 @@ export async function POST(
 
   try {
     const { projectId } = await params;
+    const userId = (session.user as any)?.id;
+    const project = await getProjectById(projectId, userId);
+    if (!project) {
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
     const body = await req.json();
 
     if (!body.key || !body.value) {

@@ -11,6 +11,15 @@ import {
 import { toast } from 'sonner';
 import { io } from 'socket.io-client';
 import { DeploymentsSkeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { 
+  Table, 
+  TableHeader, 
+  TableBody, 
+  TableRow, 
+  TableHead, 
+  TableCell 
+} from '@/components/ui/table';
 
 function FrameworkIcon({ framework }: { framework: string }) {
   switch (framework?.toLowerCase()) {
@@ -151,8 +160,6 @@ export function Deployments({ project: initialProject, onTabChange }: { project?
     return list.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
   }, [activeProject, projects]);
 
-
-
   // Navigate to the correct detail page based on context
   const handleInspect = (dep: any) => {
     if (activeProject) {
@@ -179,24 +186,24 @@ export function Deployments({ project: initialProject, onTabChange }: { project?
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-[#1f1f1f] bg-[#09090B]/60 text-[10px] font-mono text-[#71717A] uppercase">
-                {!activeProject && <th className="p-3">Project</th>}
-                <th className="p-3">Deployment ID</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Branch</th>
-                <th className="p-3">Commit</th>
-                <th className="p-3">Latency</th>
-                <th className="p-3">Region</th>
-                <th className="p-3">Created</th>
-                <th className="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="w-full text-left border-collapse">
+            <TableHeader>
+              <TableRow className="border-b border-[#1f1f1f] bg-[#09090B]/60 text-[10px] font-mono text-[#71717A] uppercase">
+                {!activeProject && <TableHead className="p-3">Project</TableHead>}
+                <TableHead className="p-3">Deployment ID</TableHead>
+                <TableHead className="p-3">Status</TableHead>
+                <TableHead className="p-3">Branch</TableHead>
+                <TableHead className="p-3">Commit</TableHead>
+                <TableHead className="p-3">Latency</TableHead>
+                <TableHead className="p-3">Region</TableHead>
+                <TableHead className="p-3">Created</TableHead>
+                <TableHead className="p-3 text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {allDeployments.length === 0 ? (
-                <tr>
-                  <td colSpan={activeProject ? 8 : 9} className="p-12 text-center text-zinc-500 font-sans">
+                <TableRow>
+                  <TableCell colSpan={activeProject ? 8 : 9} className="p-12 text-center text-zinc-500 font-sans">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <div className="h-10 w-10 rounded-full border border-dashed border-[#1f1f1f] bg-[#09090B] flex items-center justify-center text-zinc-400">
                         <Play className="h-4 w-4" />
@@ -208,55 +215,56 @@ export function Deployments({ project: initialProject, onTabChange }: { project?
                           : "Connect a repository and trigger a build to see your deployment history."}
                       </p>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 allDeployments.map((dep) => (
-                  <tr
+                  <TableRow
                     key={dep.id}
                     className="hover:bg-[#18181B]/35 border-b border-[#1f1f1f]/50 transition-colors text-xs font-mono text-[#71717A] cursor-pointer"
                     onClick={() => handleInspect(dep)}
                   >
                     {!activeProject && (
-                      <td className="p-3 font-semibold text-white">
+                      <TableCell className="p-3 font-semibold text-white">
                         <div className="flex items-center gap-2">
                           <FrameworkIcon framework={dep.project.framework} />
                           <span>{dep.project.name}</span>
                         </div>
-                      </td>
+                      </TableCell>
                     )}
-                    <td className="p-3 text-zinc-300 font-semibold">{dep.id}</td>
-                    <td className="p-3">{getStatusBadge(dep.status)}</td>
-                    <td className="p-3">
+                    <TableCell className="p-3 text-zinc-300 font-semibold">{dep.id}</TableCell>
+                    <TableCell className="p-3">{getStatusBadge(dep.status)}</TableCell>
+                    <TableCell className="p-3">
                       <span className="flex items-center gap-1">
                         <GitBranch className="h-3 w-3 text-[#71717A]" />
                         {dep.branch}
                       </span>
-                    </td>
-                    <td className="p-3 max-w-[200px] truncate">
-                      <span className="text-[#A1A1AA] font-semibold">{dep.commit.hash}</span>
+                    </TableCell>
+                    <TableCell className="p-3 max-w-[200px] truncate">
+                      <span className="text-[#A1A1AA] font-semibold">{(dep.commit.hash || '').substring(0, 7)}</span>
                       <span className="mx-1 text-[#1f1f1f]">|</span>
                       <span>{dep.commit.message}</span>
-                    </td>
-                    <td className="p-3 text-zinc-300">{dep.latency}</td>
-                    <td className="p-3 text-zinc-400">{dep.region}</td>
-                    <td className="p-3 text-zinc-400">
+                    </TableCell>
+                    <TableCell className="p-3 text-zinc-300">{dep.latency}</TableCell>
+                    <TableCell className="p-3 text-zinc-400">{dep.region}</TableCell>
+                    <TableCell className="p-3 text-zinc-400">
                       <div>{new Date(dep.createdAt || dep.updatedAt).toLocaleDateString()}</div>
                       <div className="text-[10px] text-[#71717A]">{new Date(dep.createdAt || dep.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    </td>
-                    <td className="p-3 text-right">
-                      <button
+                    </TableCell>
+                    <TableCell className="p-3 text-right">
+                      <Button
+                        variant="ghost"
                         onClick={() => handleInspect(dep)}
                         className="px-2.5 py-1 border border-[#1f1f1f] hover:bg-[#09090B] hover:text-[#FAFAFA] rounded-sm text-[#A1A1AA] transition-colors cursor-pointer"
                       >
                         Inspect
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 
