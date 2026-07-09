@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   const rawUserId = (session.user as any)?.id;
 
   // Resolve or recreate the database user record to prevent foreign key violations
-  const dbUser = await ensureUserInDb(rawUserId, session.user.email, session.user.name, session.user.image);
+  const dbUser = await ensureUserInDb(rawUserId, session.user.email || "", session.user.name, session.user.image);
   const userId = dbUser.id;
 
   // 2. Parse request payload safely
