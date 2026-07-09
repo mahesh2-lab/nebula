@@ -36,14 +36,14 @@ function parseOwnerFromUrl(githubUrl: string): string | null {
 export async function POST(req: NextRequest) {
   // 1. Authenticate user session
   const session = await getServerSession(authOptions);
-  if (!session || !session.user || !session.user.email) {
+  if (!session || !session.user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const token = (session as any).accessToken;
   const rawUserId = (session.user as any)?.id;
 
   // Resolve or recreate the database user record to prevent foreign key violations
-  const dbUser = await ensureUserInDb(rawUserId, session.user.email, session.user.name, session.user.image);
+  const dbUser = await ensureUserInDb(rawUserId, session.user.email!, session.user.name!, session.user.image!);
   const userId = dbUser.id;
 
   // 2. Parse request payload safely
