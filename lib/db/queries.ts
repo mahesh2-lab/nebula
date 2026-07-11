@@ -34,6 +34,7 @@ export async function createUser(data: UserInsert) {
 }
 
 export async function getUserById(id: string) {
+  if (!id) return null;
   const queryFn = async () => {
     return db.select().from(users).where(eq(users.id, id)).then(rows => rows[0] || null);
   };
@@ -43,15 +44,24 @@ export async function getUserById(id: string) {
   return unstable_cache(queryFn, [`user-${id}`], { tags: [`user-${id}`] })();
 }
 
-export async function ensureUserInDb(id: string, email: string, name?: string | null, image?: string | null) {
-  const existing = await db.select().from(users).where(eq(users.id, id)).then(rows => rows[0] || null);
+export async function ensureUserInDb(id: string | undefined | null, email: string, name?: string | null, image?: string | null) {
+  if (!id && !email) {
+    throw new Error("ensureUserInDb: Both id and email are missing/undefined");
+  }
+
+  let existing = null;
+  if (id) {
+    existing = await db.select().from(users).where(eq(users.id, id)).then(rows => rows[0] || null);
+  }
+
+  if (!existing && email) {
+    existing = await db.select().from(users).where(eq(users.email, email)).then(rows => rows[0] || null);
+  }
+
   if (!existing) {
-    const existingByEmail = await db.select().from(users).where(eq(users.email, email)).then(rows => rows[0] || null);
-    if (existingByEmail) {
-      return existingByEmail;
-    }
+    const finalId = id || `u-${Math.random().toString(36).substring(2, 9)}`;
     const inserted = await db.insert(users).values({
-      id,
+      id: finalId,
       name: name || "Nebula User",
       email,
       image: image || null,
