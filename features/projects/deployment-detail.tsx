@@ -218,7 +218,10 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
   React.useEffect(() => {
     if (!currentProject || !targetDeployment) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://socket.hostmyidea.me';
+    let socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://socket.hostmyidea.me';
+    if (socketUrl.includes('31.97.63.249')) {
+      socketUrl = 'https://socket.hostmyidea.me';
+    }
     const socket = io(socketUrl);
 
     socket.on('connect', () => {
