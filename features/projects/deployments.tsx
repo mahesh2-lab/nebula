@@ -3,22 +3,22 @@
 import * as React from 'react';
 import { Project, useStore, Deployment } from '../../store/store';
 import { useRouter } from 'next/navigation';
-import { 
-  GitBranch, 
-  Play, 
+import {
+  GitBranch,
+  Play,
   Cpu
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { io } from 'socket.io-client';
 import { DeploymentsSkeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { 
-  Table, 
-  TableHeader, 
-  TableBody, 
-  TableRow, 
-  TableHead, 
-  TableCell 
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell
 } from '@/components/ui/table';
 
 function FrameworkIcon({ framework }: { framework: string }) {
@@ -27,12 +27,12 @@ function FrameworkIcon({ framework }: { framework: string }) {
     case 'nextjs':
       return (
         <svg className="h-4 w-4 text-white shrink-0" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="90" cy="90" r="90" fill="black"/>
-          <path d="M149.508 157.52L69.142 54H54V126H68.307V73.685L138.835 163.666C142.613 161.802 146.185 159.739 149.508 157.52Z" fill="url(#nextjs-grad-dep)"/>
-          <rect x="115" y="54" width="15" height="72" fill="url(#nextjs-grad-dep)"/>
+          <circle cx="90" cy="90" r="90" fill="black" />
+          <path d="M149.508 157.52L69.142 54H54V126H68.307V73.685L138.835 163.666C142.613 161.802 146.185 159.739 149.508 157.52Z" fill="url(#nextjs-grad-dep)" />
+          <rect x="115" y="54" width="15" height="72" fill="url(#nextjs-grad-dep)" />
           <defs>
             <linearGradient id="nextjs-grad-dep" x1="109" y1="116.5" x2="144.5" y2="160.5" gradientUnits="userSpaceOnUse">
-              <stop stopColor="white"/><stop offset="1" stopColor="white" stopOpacity="0"/>
+              <stop stopColor="white" /><stop offset="1" stopColor="white" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>
@@ -43,25 +43,25 @@ function FrameworkIcon({ framework }: { framework: string }) {
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient x1="90.07%" y1="17.44%" x2="13.5%" y2="78.77%" id="vite-g1-dep">
-              <stop stopColor="#41D1FF" offset="0%"/><stop stopColor="#BD34FE" offset="100%"/>
+              <stop stopColor="#41D1FF" offset="0%" /><stop stopColor="#BD34FE" offset="100%" />
             </linearGradient>
           </defs>
-          <path d="M192.52 28.56L102.6 222.03a4.7 4.7 0 0 1-8.52.2L12.56 50.1a4.7 4.7 0 0 1 5.92-6.52l167.36 41a4.7 4.7 0 0 1 6.68-6.02z" fill="url(#vite-g1-dep)"/>
+          <path d="M192.52 28.56L102.6 222.03a4.7 4.7 0 0 1-8.52.2L12.56 50.1a4.7 4.7 0 0 1 5.92-6.52l167.36 41a4.7 4.7 0 0 1 6.68-6.02z" fill="url(#vite-g1-dep)" />
         </svg>
       );
     case 'go / docker':
     case 'go':
     case 'docker':
-      return <svg className="h-4 w-4 text-[#2496ED] shrink-0" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.983 11.078h2.119a.185.185 0 00.186-.185V9.006a.185.185 0 00-.186-.186h-2.119a.185.185 0 00-.185.186v1.888c0 .102.083.185.185.185M23.99 12.49c-.24-.815-.97-1.354-1.743-1.354h-.29v1.2a1.44 1.44 0 01-1.44 1.44H1.616a1.44 1.44 0 01-1.44-1.44v-3.578H.15C.03 8.758 0 8.766 0 8.766v3.724c0 2.28 1.882 4.16 4.161 4.16h15.677c.186.006.368-.008.551-.031a6.99 6.99 0 005.618-4.13"/></svg>;
+      return <svg className="h-4 w-4 text-[#2496ED] shrink-0" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.983 11.078h2.119a.185.185 0 00.186-.185V9.006a.185.185 0 00-.186-.186h-2.119a.185.185 0 00-.185.186v1.888c0 .102.083.185.185.185M23.99 12.49c-.24-.815-.97-1.354-1.743-1.354h-.29v1.2a1.44 1.44 0 01-1.44 1.44H1.616a1.44 1.44 0 01-1.44-1.44v-3.578H.15C.03 8.758 0 8.766 0 8.766v3.724c0 2.28 1.882 4.16 4.161 4.16h15.677c.186.006.368-.008.551-.031a6.99 6.99 0 005.618-4.13" /></svg>;
     case 'python':
     case 'python / fastapi':
     case 'python / docker':
       return (
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 448 512" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-67.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.2v30.7c0 29.2 25 54.2 53.4 54.2h11.6v-39.7c0-30.6 25-55.6 55.6-55.6h108.3c30.6 0 55.6-25 55.6-55.6v-49.9zm-299.7 11h-11.6c-29.2 0-54.2 25-54.2 54.2v49.9c0 30.9 14.5 54.2 45.6 54.2h40.1v-47.4c0-36.8 31.2-67.8 67.8-67.8h105.8c29.2 0 54.2-25 54.2-54.2v-30.7c0-29.2-25-54.2-54.2-54.2h-11.6v39.7c0 30.6-25 55.6-55.6 55.6H195.7c-30.6 0-55.6 25-55.6 55.6v49.9z" fill="url(#python-grad-dep)"/>
+          <path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-67.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.2v30.7c0 29.2 25 54.2 53.4 54.2h11.6v-39.7c0-30.6 25-55.6 55.6-55.6h108.3c30.6 0 55.6-25 55.6-55.6v-49.9zm-299.7 11h-11.6c-29.2 0-54.2 25-54.2 54.2v49.9c0 30.9 14.5 54.2 45.6 54.2h40.1v-47.4c0-36.8 31.2-67.8 67.8-67.8h105.8c29.2 0 54.2-25 54.2-54.2v-30.7c0-29.2-25-54.2-54.2-54.2h-11.6v39.7c0 30.6-25 55.6-55.6 55.6H195.7c-30.6 0-55.6 25-55.6 55.6v49.9z" fill="url(#python-grad-dep)" />
           <defs>
             <linearGradient id="python-grad-dep" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop stopColor="#3776AB" offset="0%"/><stop stopColor="#FFD343" offset="100%"/>
+              <stop stopColor="#3776AB" offset="0%" /><stop stopColor="#FFD343" offset="100%" />
             </linearGradient>
           </defs>
         </svg>
@@ -127,7 +127,7 @@ export function Deployments({ project: initialProject, onTabChange }: { project?
   React.useEffect(() => {
     if (!activeProject) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:9002';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://socket.hostmyidea.me';
     const socket = io(socketUrl);
 
     socket.on('connect', () => {
@@ -210,8 +210,8 @@ export function Deployments({ project: initialProject, onTabChange }: { project?
                       </div>
                       <p className="text-sm font-semibold text-white">No deployments found</p>
                       <p className="text-xs text-zinc-500 max-w-sm">
-                        {activeProject 
-                          ? "This project has not been deployed yet. Trigger a build to get started." 
+                        {activeProject
+                          ? "This project has not been deployed yet. Trigger a build to get started."
                           : "Connect a repository and trigger a build to see your deployment history."}
                       </p>
                     </div>

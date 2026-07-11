@@ -33,12 +33,12 @@ function FrameworkIcon({ framework }: { framework: string }) {
     case 'nextjs':
       return (
         <svg className="h-4 w-4 text-white shrink-0" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="90" cy="90" r="90" fill="black"/>
-          <path d="M149.508 157.52L69.142 54H54V126H68.307V73.685L138.835 163.666C142.613 161.802 146.185 159.739 149.508 157.52Z" fill="url(#dd-g1)"/>
-          <rect x="115" y="54" width="15" height="72" fill="url(#dd-g1)"/>
+          <circle cx="90" cy="90" r="90" fill="black" />
+          <path d="M149.508 157.52L69.142 54H54V126H68.307V73.685L138.835 163.666C142.613 161.802 146.185 159.739 149.508 157.52Z" fill="url(#dd-g1)" />
+          <rect x="115" y="54" width="15" height="72" fill="url(#dd-g1)" />
           <defs>
             <linearGradient id="dd-g1" x1="109" y1="116.5" x2="144.5" y2="160.5" gradientUnits="userSpaceOnUse">
-              <stop stopColor="white"/><stop offset="1" stopColor="white" stopOpacity="0"/>
+              <stop stopColor="white" /><stop offset="1" stopColor="white" stopOpacity="0" />
             </linearGradient>
           </defs>
         </svg>
@@ -49,16 +49,16 @@ function FrameworkIcon({ framework }: { framework: string }) {
         <svg className="h-4 w-4 shrink-0" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient x1="90.07%" y1="17.44%" x2="13.5%" y2="78.77%" id="dd-g2">
-              <stop stopColor="#41D1FF" offset="0%"/><stop stopColor="#BD34FE" offset="100%"/>
+              <stop stopColor="#41D1FF" offset="0%" /><stop stopColor="#BD34FE" offset="100%" />
             </linearGradient>
           </defs>
-          <path d="M192.52 28.56L102.6 222.03a4.7 4.7 0 0 1-8.52.2L12.56 50.1a4.7 4.7 0 0 1 5.92-6.52l167.36 41a4.7 4.7 0 0 1 6.68-6.02z" fill="url(#dd-g2)"/>
+          <path d="M192.52 28.56L102.6 222.03a4.7 4.7 0 0 1-8.52.2L12.56 50.1a4.7 4.7 0 0 1 5.92-6.52l167.36 41a4.7 4.7 0 0 1 6.68-6.02z" fill="url(#dd-g2)" />
         </svg>
       );
     case 'go / docker':
     case 'go':
     case 'docker':
-      return <svg className="h-4 w-4 text-[#2496ED] shrink-0" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.983 11.078h2.119a.185.185 0 00.186-.185V9.006a.185.185 0 00-.186-.186h-2.119a.185.185 0 00-.185.186v1.888c0 .102.083.185.185.185M23.99 12.49c-.24-.815-.97-1.354-1.743-1.354h-.29v1.2a1.44 1.44 0 01-1.44 1.44H1.616a1.44 1.44 0 01-1.44-1.44v-3.578H.15C.03 8.758 0 8.766 0 8.766v3.724c0 2.28 1.882 4.16 4.161 4.16h15.677c.186.006.368-.008.551-.031a6.99 6.99 0 005.618-4.13"/></svg>;
+      return <svg className="h-4 w-4 text-[#2496ED] shrink-0" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.983 11.078h2.119a.185.185 0 00.186-.185V9.006a.185.185 0 00-.186-.186h-2.119a.185.185 0 00-.185.186v1.888c0 .102.083.185.185.185M23.99 12.49c-.24-.815-.97-1.354-1.743-1.354h-.29v1.2a1.44 1.44 0 01-1.44 1.44H1.616a1.44 1.44 0 01-1.44-1.44v-3.578H.15C.03 8.758 0 8.766 0 8.766v3.724c0 2.28 1.882 4.16 4.161 4.16h15.677c.186.006.368-.008.551-.031a6.99 6.99 0 005.618-4.13" /></svg>;
     default:
       return <Cpu className="h-4 w-4 text-zinc-400 shrink-0" />;
   }
@@ -218,7 +218,7 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
   React.useEffect(() => {
     if (!currentProject || !targetDeployment) return;
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:9002';
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://socket.hostmyidea.me';
     const socket = io(socketUrl);
 
     socket.on('connect', () => {
@@ -312,11 +312,10 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
               <button
                 key={id}
                 onClick={() => { setActiveSubTab(id); if (id === 'logs') setExpandedSection('logs'); }}
-                className={`px-3 py-1.5 text-xs font-mono border-b-2 transition-all cursor-pointer ${
-                  activeSubTab === id
+                className={`px-3 py-1.5 text-xs font-mono border-b-2 transition-all cursor-pointer ${activeSubTab === id
                     ? 'border-foreground text-foreground font-semibold'
                     : 'border-transparent text-muted-foreground hover:text-foreground'
-                }`}
+                  }`}
               >
                 {label}
               </button>
@@ -376,10 +375,10 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
                       src={`${protocol}://${currentProject.id}.${deployDomain}`}
                       className="absolute inset-0 border-0 pointer-events-none"
                       scrolling="no"
-                      style={{ 
-                        width: '400%', 
-                        height: '400%', 
-                        transform: 'scale(0.25)', 
+                      style={{
+                        width: '400%',
+                        height: '400%',
+                        transform: 'scale(0.25)',
                         transformOrigin: 'top left',
                         overflow: 'hidden'
                       }}
