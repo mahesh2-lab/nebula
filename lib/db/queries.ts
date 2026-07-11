@@ -237,8 +237,12 @@ export async function createDeployment(data: DeploymentInsert) {
   return d;
 }
 
-export async function updateDeploymentStatus(id: string, status: string) {
-  const d = await db.update(deployments).set({ status, updatedAt: new Date() }).where(eq(deployments.id, id)).returning().then(rows => rows[0]);
+export async function updateDeploymentStatus(id: string, status: string, logs?: string) {
+  const updateData: any = { status, updatedAt: new Date() };
+  if (logs !== undefined) {
+    updateData.logs = logs;
+  }
+  const d = await db.update(deployments).set(updateData).where(eq(deployments.id, id)).returning().then(rows => rows[0]);
   revalidateTag('deployments', 'max');
   if (d && d.projectId) {
     revalidateTag(`deployments-${d.projectId}`, 'max');

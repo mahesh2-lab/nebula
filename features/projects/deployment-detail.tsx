@@ -244,9 +244,28 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
             });
           }
           if (parsed.status) {
-            setDeploymentStatus(parsed.status);
-            updateDeploymentStatus(currentProject.id, targetDeployment.id, parsed.status as any);
-            toast.success(`Deployment status updated: ${parsed.status.toUpperCase()}`);
+            const finalStatus = parsed.status;
+            setDeploymentStatus(finalStatus);
+            updateDeploymentStatus(currentProject.id, targetDeployment.id, finalStatus as any);
+            toast.success(`Deployment status updated: ${finalStatus.toUpperCase()}`);
+
+            if (finalStatus === 'ready' || finalStatus === 'failed') {
+              setRealtimeLogs((currentLogs) => {
+                const logsStr = currentLogs.join('\n');
+                fetch(`/api/projects/${currentProject.id}/deployments/${targetDeployment.id}`, {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: finalStatus, logs: logsStr }),
+                })
+                  .then((res) => {
+                    if (!res.ok) console.error('[Deployment Detail] Failed to sync deployment status to DB');
+                  })
+                  .catch((err) => {
+                    console.error('[Deployment Detail] Error syncing deployment status to DB:', err);
+                  });
+                return currentLogs;
+              });
+            }
           }
         }
       } catch (e) {
