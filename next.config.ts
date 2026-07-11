@@ -23,7 +23,7 @@ const socketConnectSrc = [
   socketWsUrl
 ].filter(Boolean).join(" ");
 
-const cspValue = `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com https://lh3.googleusercontent.com; font-src 'self' data:; connect-src 'self' ${socketConnectSrc} https://github.com https://google.com https://accounts.google.com; frame-src 'self' http://*.localhost:* http://*.localhost https://*.nebula.dev https://*.hostmyidea.me:* https://*.hostmyidea.me;`;
+const cspValue = `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://avatars.githubusercontent.com https://lh3.googleusercontent.com; font-src 'self' data:; connect-src 'self' ${socketConnectSrc} https://github.com https://google.com https://accounts.google.com; frame-src 'self' http://*.localhost:* http://*.localhost http://*.nebula.dev https://*.nebula.dev http://*.hostmyidea.me:* http://*.hostmyidea.me https://*.hostmyidea.me:* https://*.hostmyidea.me;`;
 
 const nextConfig: NextConfig = {
   async headers() {

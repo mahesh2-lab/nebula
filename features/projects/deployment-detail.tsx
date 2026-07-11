@@ -79,8 +79,12 @@ export function DeploymentDetail({ deploymentId, project: initialProject, backHr
   const isDeploying = deployState.step !== 'ready' && deployState.step !== 'failed';
 
   const deployDomain = process.env.NEXT_PUBLIC_DEPLOY_DOMAIN || 'nebula.dev';
-  const isLocalhost = deployDomain.includes('localhost') || deployDomain.includes('hostmyidea.me');
-  const protocol = isLocalhost ? 'http' : 'https';
+  const [protocol, setProtocol] = React.useState('https');
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setProtocol(window.location.protocol.replace(':', ''));
+    }
+  }, []);
 
   // Resolve the deployment across all projects
   const { targetDeployment, currentProject } = React.useMemo(() => {
